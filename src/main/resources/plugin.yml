@@ -2,3 +2,14 @@ name: BastionCore
 version: '1.0.0'
 main: org.ReDiego0.bastionCore.BastionCore
 api-version: '1.21'
+commands:
+  bastiondebug:
+    description: Comandos de prueba para desarrolladores (armas, stats).
+    usage: /bastiondebug <arma> <tipo>
+    permission: bastion.admin
+    aliases: [bdebug]
+
+permissions:
+  bastion.admin:
+    description: Otorga acceso total a los comandos de administración y debug de BastionCore.
+    default: op

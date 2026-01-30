@@ -28,6 +28,8 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(StaminaListener(), this)
         server.pluginManager.registerEvents(CitadelListener(this), this)
 
+        getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
+
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
 
         logger.info("§a[BastionCore] Sistemas de soporte vital activos. Ciudadela: $citadelWorldName")
