@@ -1,6 +1,7 @@
 package org.ReDiego0.bastionCore.task
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.listener.StaminaListener
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.scheduler.BukkitRunnable
@@ -19,7 +20,7 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
             if (isAtCitadel) {
                 if (player.isFlying) {
                     if (player.foodLevel > 0) {
-                        drainStamina(player, 1)
+                        StaminaListener.changeStamina(player, -1)
                         isConsuming = true
                     } else {
                         player.isFlying = false
@@ -36,7 +37,7 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
             } else {
                 if (player.isSprinting) {
                     if (player.foodLevel > 0) {
-                        drainStamina(player, 1)
+                        StaminaListener.changeStamina(player, -1)
                         isConsuming = true
                     }
 
@@ -51,10 +52,8 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
             } else {
                 val timeSinceLastAction = System.currentTimeMillis() - data.lastStaminaUsage
                 if (timeSinceLastAction > 2000 && player.foodLevel < 20) {
-                    // En Bastion: +1 (Lento, para no abusar del vuelo)
-                    // En Caza: +2 (Rápido, para agarrarse a wates)
                     val regenAmount = if (isAtCitadel) 1 else 2
-                    player.foodLevel = (player.foodLevel + regenAmount).coerceAtMost(20)
+                    StaminaListener.changeStamina(player, regenAmount)
                 }
             }
         }

@@ -34,6 +34,7 @@ class CombatManager(private val plugin: BastionCore) {
 
         if (player.foodLevel < 4) {
             player.sendMessage("§c¡Demasiado exhausto para usar habilidades!")
+            player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
             return
         }
 
@@ -42,14 +43,14 @@ class CombatManager(private val plugin: BastionCore) {
                 player.sendMessage("§e[Katana] §f¡Corte Relámpago!")
                 player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1.5f)
 
-                player.foodLevel -= 4
+                org.ReDiego0.bastionCore.listener.StaminaListener.changeStamina(player, -4)
                 cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 8.0)
             }
             WeaponType.GREATSWORD -> {
                 player.sendMessage("§6[Gran Espada] §f¡Carga Sísmica!")
                 player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 0.5f)
 
-                player.foodLevel -= 6
+                org.ReDiego0.bastionCore.listener.StaminaListener.changeStamina(player, -6)
                 cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
             }
             else -> {
