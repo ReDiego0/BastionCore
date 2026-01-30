@@ -13,8 +13,14 @@ class StaminaListener : Listener {
         private const val STAMINA_CHANGE_KEY = "BastionStaminaUpdate"
 
         fun changeStamina(player: Player, amount: Int) {
+            player.saturation = 0f
             player.setMetadata(STAMINA_CHANGE_KEY, FixedMetadataValue(BastionCore.instance, true))
-            val newLevel = (player.foodLevel + amount).coerceIn(0, 20)
+
+            val oldLevel = player.foodLevel
+            val newLevel = (oldLevel + amount).coerceIn(0, 20)
+            if (amount < 0) {
+                System.out.println("[DEBUG] Bajando estamina a ${player.name}: $oldLevel -> $newLevel")
+            }
             player.foodLevel = newLevel
             player.removeMetadata(STAMINA_CHANGE_KEY, BastionCore.instance)
         }
@@ -24,6 +30,8 @@ class StaminaListener : Listener {
     fun onFoodChange(event: FoodLevelChangeEvent) {
         if (event.entity !is Player) return
         val player = event.entity as Player
+        event.entity.saturation = 0f
+
         if (player.hasMetadata(STAMINA_CHANGE_KEY)) {
             event.isCancelled = false
         } else {
