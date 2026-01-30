@@ -26,7 +26,13 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
                         player.allowFlight = false
                         player.sendMessage("§c[Aviso] §fPropulsores sin presión. Aterrizando...")
                     }
+
                 }
+
+                else if (!player.allowFlight && player.foodLevel > 4) {
+                    player.allowFlight = true
+                }
+
             } else {
                 if (player.isSprinting) {
                     if (player.foodLevel > 0) {
