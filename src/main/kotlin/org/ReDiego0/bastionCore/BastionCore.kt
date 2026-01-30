@@ -5,6 +5,7 @@ import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.CitadelListener
 import org.ReDiego0.bastionCore.listener.InputListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
+import org.ReDiego0.bastionCore.manager.CooldownManager
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -17,6 +18,7 @@ class BastionCore : JavaPlugin() {
 
     lateinit var playerDataManager: PlayerDataManager
     lateinit var combatManager: CombatManager
+    lateinit var cooldownManager: CooldownManager
 
     var citadelWorldName: String = "Bastion"
 
@@ -26,7 +28,9 @@ class BastionCore : JavaPlugin() {
         citadelWorldName = config.getString("citadel_world", "Bastion")!!
 
         playerDataManager = PlayerDataManager(this)
+        cooldownManager = CooldownManager()
         combatManager = CombatManager(this)
+
 
         server.pluginManager.registerEvents(playerDataManager, this)
         server.pluginManager.registerEvents(StaminaListener(), this)
