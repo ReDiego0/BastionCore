@@ -1,6 +1,7 @@
 package org.ReDiego0.bastionCore
 
 import org.ReDiego0.bastionCore.data.PlayerDataManager
+import org.ReDiego0.bastionCore.listener.CitadelListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.bukkit.plugin.java.JavaPlugin
@@ -25,6 +26,7 @@ class BastionCore : JavaPlugin() {
 
         server.pluginManager.registerEvents(playerDataManager, this)
         server.pluginManager.registerEvents(StaminaListener(), this)
+        server.pluginManager.registerEvents(CitadelListener(this), this)
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
 
