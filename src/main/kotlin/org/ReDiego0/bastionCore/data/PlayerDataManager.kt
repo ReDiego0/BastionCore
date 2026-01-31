@@ -2,6 +2,7 @@ package org.ReDiego0.bastionCore.data
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.bukkit.GameMode
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerChangedWorldEvent
@@ -28,11 +29,13 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
         player.saturation = 0f
 
         updateFlightPermission(player)
+        updateWorldContext(event.player)
     }
 
     @EventHandler
     fun onWorldChange(event: PlayerChangedWorldEvent) {
         updateFlightPermission(event.player)
+        updateWorldContext(event.player)
     }
 
     @EventHandler
@@ -49,6 +52,18 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
         } else {
             player.isFlying = false
             player.allowFlight = false
+        }
+    }
+    private fun updateWorldContext(player: Player) {
+        val data = getData(player.uniqueId) ?: return
+
+        if (player.world.name == plugin.citadelWorldName) {
+            player.level = data.hunterRank
+            player.exp = data.reputationProgress
+
+        } else {
+            player.level = data.ultimateCharge.toInt()
+            player.exp = (data.ultimateCharge / 100.0).toFloat()
         }
     }
 }

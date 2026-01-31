@@ -10,6 +10,8 @@ data class PlayerData(
     val name: String,
     var currentRole: Role = Role.RECLUTA,
     var ultimateCharge: Double = 0.0,
+    var hunterRank: Int = 1,
+    var reputationProgress: Float = 0.0f,
     var lastStaminaUsage: Long = System.currentTimeMillis()
 ) {
 
