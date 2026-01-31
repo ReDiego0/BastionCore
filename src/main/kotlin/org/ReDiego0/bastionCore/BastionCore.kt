@@ -8,6 +8,7 @@ import org.ReDiego0.bastionCore.listener.InputListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
 import org.ReDiego0.bastionCore.listener.UltimateListener
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.ReDiego0.bastionCore.manager.InstanceManager
 import org.ReDiego0.bastionCore.manager.VaultManager
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.bukkit.plugin.java.JavaPlugin
@@ -23,6 +24,7 @@ class BastionCore : JavaPlugin() {
     lateinit var combatManager: CombatManager
     lateinit var cooldownManager: CooldownManager
     lateinit var vaultManager: VaultManager
+    lateinit var instanceManager: InstanceManager
 
     var citadelWorldName: String = "Bastion"
 
@@ -35,6 +37,7 @@ class BastionCore : JavaPlugin() {
         cooldownManager = CooldownManager()
         combatManager = CombatManager(this)
         vaultManager = VaultManager()
+        instanceManager = InstanceManager(this)
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -46,6 +49,7 @@ class BastionCore : JavaPlugin() {
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))
+        getCommand("mision")?.setExecutor(org.ReDiego0.bastionCore.command.MissionCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
 
@@ -53,6 +57,7 @@ class BastionCore : JavaPlugin() {
     }
 
     override fun onDisable() {
+        instanceManager.cleanupAll()
         logger.info("§c[BastionCore] Cerrando conexión con el servidor central...")
     }
 }
