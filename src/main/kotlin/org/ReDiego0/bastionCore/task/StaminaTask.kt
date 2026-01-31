@@ -44,6 +44,10 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
                     if (player.foodLevel <= 1) {
                         player.isSprinting = false
                     }
+
+                    if (data.ultimateCharge < 100.0) {
+                        data.addCharge(player, 1.0)
+                    }
                 }
             }
 
@@ -57,9 +61,6 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
                 }
             }
 
-            if (data.ultimateCharge < 100.0) {
-                data.addCharge(player, 1.0)
-            }
         }
 
     }
