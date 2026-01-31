@@ -61,16 +61,22 @@ class CombatManager(private val plugin: BastionCore) {
 
     fun handleClassUltimate(player: Player) {
         if (cooldowns.checkAndNotify(player, CooldownManager.CooldownType.CLASS_ULTIMATE)) return
-
         val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
+
+        if (data.ultimateCharge < 100.0) {
+            player.sendMessage("§cLa Ultimate no está lista (${data.ultimateCharge.toInt()}%)")
+            player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
+            return
+        }
+
         val role = data.currentRole
-
         player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
-        player.sendMessage("§b[CLASE] §f¡Ultimate de ${role.displayName} activada!")
+        player.sendMessage("§b[CLASE] §f¡Habilidad Definitiva de ${role.displayName}!")
 
-        cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.CLASS_ULTIMATE, 6.0) // 6s para debug
+        // Aquí irían los efectos reales (Curar, Daño masivo, Inmortalidad...)
 
-        // Resetear carga (cuando el sistema esté activo)
-        // data.resetCharge()
+        data.resetCharge(player)
+
+        cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.CLASS_ULTIMATE, 5.0)
     }
 }

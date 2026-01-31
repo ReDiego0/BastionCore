@@ -3,8 +3,10 @@ package org.ReDiego0.bastionCore
 import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.CitadelListener
+import org.ReDiego0.bastionCore.listener.CombatListener
 import org.ReDiego0.bastionCore.listener.InputListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
+import org.ReDiego0.bastionCore.listener.UltimateListener
 import org.ReDiego0.bastionCore.manager.CooldownManager
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.bukkit.plugin.java.JavaPlugin
@@ -36,6 +38,8 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(StaminaListener(), this)
         server.pluginManager.registerEvents(CitadelListener(this), this)
         server.pluginManager.registerEvents(InputListener(this, combatManager), this)
+        server.pluginManager.registerEvents(UltimateListener(),this)
+        server.pluginManager.registerEvents(CombatListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
 

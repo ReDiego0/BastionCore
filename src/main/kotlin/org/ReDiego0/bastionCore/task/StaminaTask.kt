@@ -56,7 +56,12 @@ class StaminaTask(private val plugin: BastionCore) : BukkitRunnable() {
                     StaminaListener.changeStamina(player, regenAmount)
                 }
             }
+
+            if (data.ultimateCharge < 100.0) {
+                data.addCharge(player, 1.0)
+            }
         }
+
     }
 
     private fun drainStamina(player: org.bukkit.entity.Player, amount: Int) {
