@@ -19,13 +19,19 @@ data class PlayerData(
         val wasFull = ultimateCharge >= 100.0
         ultimateCharge = (ultimateCharge + amount).coerceIn(0.0, 100.0)
 
-        player.level = ultimateCharge.toInt()
-        player.exp = (ultimateCharge / 100.0).toFloat()
+        val citadelName = org.ReDiego0.bastionCore.BastionCore.instance.citadelWorldName
+
+        if (player.world.name != citadelName) {
+            player.level = ultimateCharge.toInt()
+            player.exp = (ultimateCharge / 100.0).toFloat()
+        }
 
         val isFull = ultimateCharge >= 100.0
         if (!wasFull && isFull) {
-            player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f)
-            player.sendMessage("§b⚡ ¡ULTIMATE LISTA! (Presiona F) ⚡")
+            if (player.world.name != citadelName) {
+                player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f)
+                player.sendMessage("§b⚡ ¡ULTIMATE LISTA! ⚡")
+            }
             return true
         }
         return false
