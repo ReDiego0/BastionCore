@@ -8,6 +8,7 @@ import org.ReDiego0.bastionCore.listener.InputListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
 import org.ReDiego0.bastionCore.listener.UltimateListener
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.ReDiego0.bastionCore.manager.VaultManager
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -21,6 +22,7 @@ class BastionCore : JavaPlugin() {
     lateinit var playerDataManager: PlayerDataManager
     lateinit var combatManager: CombatManager
     lateinit var cooldownManager: CooldownManager
+    lateinit var vaultManager: VaultManager
 
     var citadelWorldName: String = "Bastion"
 
@@ -32,6 +34,7 @@ class BastionCore : JavaPlugin() {
         playerDataManager = PlayerDataManager(this)
         cooldownManager = CooldownManager()
         combatManager = CombatManager(this)
+        vaultManager = VaultManager()
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -42,6 +45,7 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(CombatListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
+        getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
 

@@ -8,6 +8,10 @@ commands:
     usage: /bastiondebug <arma> <tipo>
     permission: bastion.admin
     aliases: [bdebug]
+  baul:
+    description: Uso del baul
+    usage: /baul
+    permission: bastion.admin
 
 permissions:
   bastion.admin:
