@@ -12,6 +12,10 @@ commands:
     description: Uso del baul
     usage: /baul
     permission: bastion.admin
+  mision:
+    description: instanciar misiones
+    usage: /mision <iniciar | salir> <nombre>
+    permission: bastion.admin
 
 permissions:
   bastion.admin:
