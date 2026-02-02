@@ -13,12 +13,14 @@ repositories {
         name = "papermc-repo"
     }
     maven("https://repo.extendedclip.com/releases/")
+    maven("https://mvn.lumine.io/repository/maven-public/")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compileOnly("me.clip:placeholderapi:2.11.7")
+    compileOnly("io.lumine:Mythic-Dist:5.6.1")
 }
 
 tasks {
