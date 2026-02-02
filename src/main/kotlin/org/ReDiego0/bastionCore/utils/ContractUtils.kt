@@ -74,7 +74,7 @@ object ContractUtils {
 
     fun stampExpiration(item: ItemStack): ItemStack {
         val meta = item.itemMeta ?: return item
-        val minutes = BastionCore.instance.config.getInt("settings.contract_expiration_minutes", 45)
+        val minutes = getConfig().getInt("settings.contract_expiration_minutes", 45)
 
         val expiryDate = System.currentTimeMillis() + (minutes * 60 * 1000)
 
@@ -94,7 +94,7 @@ object ContractUtils {
         if (!item.hasItemMeta()) return false
         val pdc = item.itemMeta.persistentDataContainer
 
-        if (!pdc.has(EXPIRATION_KEY, PersistentDataType.LONG)) return false // No tiene fecha = No expira (Especiales)
+        if (!pdc.has(EXPIRATION_KEY, PersistentDataType.LONG)) return false
 
         val expiryTime = pdc.get(EXPIRATION_KEY, PersistentDataType.LONG) ?: 0L
         return System.currentTimeMillis() > expiryTime
