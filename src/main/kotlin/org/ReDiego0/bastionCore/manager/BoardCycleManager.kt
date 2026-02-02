@@ -1,6 +1,7 @@
 package org.ReDiego0.bastionCore.manager
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.utils.ContractUtils // <--- Importante
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.ThreadLocalRandom
@@ -10,9 +11,10 @@ class BoardCycleManager(private val plugin: BastionCore) {
     private val currentStock = ArrayList<ItemStack>()
 
     private val rotationMinutes: Int
-        get() = plugin.config.getInt("settings.board_rotation_minutes", 60)
+        get() = ContractUtils.getConfig().getInt("settings.board_rotation_minutes", 60)
 
     init {
+        ContractUtils.reloadMissions()
         refreshStock()
         startTimer()
     }
@@ -33,7 +35,13 @@ class BoardCycleManager(private val plugin: BastionCore) {
         currentStock.clear()
 
         val generator = MissionGenerator(plugin)
-        val templates = plugin.config.getConfigurationSection("templates")?.getKeys(false) ?: return
+
+        val templates = ContractUtils.getConfig().getConfigurationSection("templates")?.getKeys(false)
+
+        if (templates == null || templates.isEmpty()) {
+            plugin.logger.warning("[BastionBoard] No se encontraron templates en missions.yml")
+            return
+        }
 
         for (i in 0 until 9) {
             val randomTemplate = templates.elementAt(ThreadLocalRandom.current().nextInt(templates.size))
@@ -43,12 +51,12 @@ class BoardCycleManager(private val plugin: BastionCore) {
             }
         }
 
-        plugin.logger.info("§a[BastionBoard] ¡Nuevos contratos disponibles! Próxima rotación en ${rotationMinutes}m.")
+        plugin.logger.info("§a[BastionBoard] Nuevos contratos disponibles. Próxima rotación en ${rotationMinutes}m.")
     }
 
     fun takeMission(originalItem: ItemStack): ItemStack {
         val copy = originalItem.clone()
-        return org.ReDiego0.bastionCore.utils.ContractUtils.stampExpiration(copy)
+        return ContractUtils.stampExpiration(copy)
     }
 
     fun getAvailableMissions(): List<ItemStack> {
