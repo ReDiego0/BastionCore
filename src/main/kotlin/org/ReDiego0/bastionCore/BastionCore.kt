@@ -4,12 +4,14 @@ import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.CitadelListener
 import org.ReDiego0.bastionCore.listener.CombatListener
+import org.ReDiego0.bastionCore.listener.GameListener
 import org.ReDiego0.bastionCore.listener.InputListener
 import org.ReDiego0.bastionCore.listener.MissionListener
 import org.ReDiego0.bastionCore.listener.StaminaListener
 import org.ReDiego0.bastionCore.listener.UltimateListener
 import org.ReDiego0.bastionCore.manager.BoardCycleManager
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.ReDiego0.bastionCore.manager.GameManager
 import org.ReDiego0.bastionCore.manager.InstanceManager
 import org.ReDiego0.bastionCore.manager.MissionManager
 import org.ReDiego0.bastionCore.manager.VaultManager
@@ -31,6 +33,7 @@ class BastionCore : JavaPlugin() {
     lateinit var instanceManager: InstanceManager
     lateinit var boardCycleManager: BoardCycleManager
     lateinit var missionManager: MissionManager
+    lateinit var gameManager: GameManager
 
     var citadelWorldName: String = "Bastion"
 
@@ -47,6 +50,7 @@ class BastionCore : JavaPlugin() {
         instanceManager = InstanceManager(this)
         boardCycleManager = BoardCycleManager(this)
         missionManager = MissionManager(this)
+        gameManager = GameManager(this)
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -57,6 +61,7 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(CombatListener(this), this)
         server.pluginManager.registerEvents(MissionListener(this, missionManager), this)
         server.pluginManager.registerEvents(org.ReDiego0.bastionCore.listener.BoardListener(this), this)
+        server.pluginManager.registerEvents(GameListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))

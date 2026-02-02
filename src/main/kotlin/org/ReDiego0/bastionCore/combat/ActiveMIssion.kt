@@ -5,8 +5,12 @@ import java.util.UUID
 data class ActiveMission(
     val worldName: String,
     val leaderId: UUID,
-    val bossId: String,
+
+    val type: MissionType,
+    val targetId: String,
+    val requiredAmount: Int,
+    var currentProgress: Int = 0,
+
     val rewardGold: Double,
-    val threatLevel: Int,
-    val startTime: Long = System.currentTimeMillis()
+    val threatLevel: Int
 )

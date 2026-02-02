@@ -10,15 +10,19 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 
 object ContractUtils {
-    val MISSION_TYPE_KEY = NamespacedKey(BastionCore.instance, "mission_type") // "PROCEDURAL" o "SPECIAL"
-    val MISSION_ID_KEY = NamespacedKey(BastionCore.instance, "mission_id")     // ID en yaml (para especiales)
+    val MISSION_TYPE_KEY = NamespacedKey(BastionCore.instance, "mission_type")
+    val MISSION_ID_KEY = NamespacedKey(BastionCore.instance, "mission_id")
 
     val DATA_WORLD_KEY = NamespacedKey(BastionCore.instance, "proc_world")
     val DATA_BOSS_KEY = NamespacedKey(BastionCore.instance, "proc_boss")
     val DATA_REWARD_KEY = NamespacedKey(BastionCore.instance, "proc_reward")
-    val DATA_TRIGGER_KEY = NamespacedKey(BastionCore.instance, "proc_trigger") // Bloque necesario
-    val DATA_THREAT_KEY = NamespacedKey(BastionCore.instance, "proc_threat")   // Dificultad (1-5)
+    val DATA_TRIGGER_KEY = NamespacedKey(BastionCore.instance, "proc_trigger")
+    val DATA_THREAT_KEY = NamespacedKey(BastionCore.instance, "proc_threat")
     val EXPIRATION_KEY = NamespacedKey(BastionCore.instance, "expiration_time")
+    val DATA_MISSION_TYPE_ENUM_KEY = NamespacedKey(BastionCore.instance, "proc_type_enum")
+    val DATA_REQUIRED_AMOUNT_KEY = NamespacedKey(BastionCore.instance, "proc_amount")
+    val DATA_SPAWN_RADIUS_KEY = NamespacedKey(BastionCore.instance, "proc_radius")
+
 
     private var missionsConfig: YamlConfiguration? = null
 

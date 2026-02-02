@@ -1,54 +1,61 @@
 package org.ReDiego0.bastionCore.manager
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.combat.ActiveMission
+import org.ReDiego0.bastionCore.combat.MissionType
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 
 class MissionManager(private val plugin: BastionCore) {
-    fun startMission(player: Player, missionId: ItemStack) {
-        val config = ContractUtils.getConfig()
-        val path = "missions.$missionId"
 
-        val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
-        val minRank = config.getInt("$path.requirements.min_rank", 1)
-
-        if (data.hunterRank < minRank) {
-            player.sendMessage("§c[!] Acceso Denegado.")
-            player.sendMessage("§7Tu Rango de Contratista (${data.hunterRank}) es insuficiente.")
-            player.sendMessage("§7Rango requerido: $minRank")
-            player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
-            return
-        }
+    fun startMission(player: Player, item: ItemStack) {
+        val pdc = item.itemMeta.persistentDataContainer
 
         if (!LoadoutValidator.canDeploy(player)) {
             player.playSound(player.location, Sound.BLOCK_CHEST_CLOSE, 1f, 0.5f)
             return
         }
 
-        val templateName = config.getString("$path.template_world") ?: "world"
+        val templateWorld = pdc.get(ContractUtils.DATA_WORLD_KEY, PersistentDataType.STRING) ?: "world"
+        val targetId = pdc.get(ContractUtils.DATA_BOSS_KEY, PersistentDataType.STRING) ?: "ZOMBIE"
+        val reward = pdc.get(ContractUtils.DATA_REWARD_KEY, PersistentDataType.DOUBLE) ?: 0.0
+        val threat = pdc.get(ContractUtils.DATA_THREAT_KEY, PersistentDataType.INTEGER) ?: 1
 
-        player.sendMessage("§e[Sistema] §fProcesando contrato...")
-        player.sendMessage("§e[Sistema] §fGenerando zona de despliegue: $templateName...")
+        val typeStr = pdc.get(ContractUtils.DATA_MISSION_TYPE_ENUM_KEY, PersistentDataType.STRING) ?: "HUNT"
+        val amount = pdc.get(ContractUtils.DATA_REQUIRED_AMOUNT_KEY, PersistentDataType.INTEGER) ?: 1
+        val radius = pdc.get(ContractUtils.DATA_SPAWN_RADIUS_KEY, PersistentDataType.INTEGER) ?: 50
 
-        // Idealmente esto debería ser con callback para no congelar si el mundo es grande
-        val world = plugin.instanceManager.createInstance(templateName)
+        val missionType = try { MissionType.valueOf(typeStr) } catch (e: Exception) { MissionType.HUNT }
+
+        player.sendMessage("§e[Sistema] §fGenerando zona de despliegue: $templateWorld...")
+
+        val world = plugin.instanceManager.createInstance(templateWorld)
 
         if (world != null) {
-            val handItem = player.inventory.itemInMainHand
-            handItem.amount -= 1
+            item.amount = item.amount - 1
 
             player.teleport(world.spawnLocation)
-
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
-            player.sendTitle("§cMISIÓN INICIADA", config.getString("$path.display_name")?.replace("&", "§"), 10, 70, 20)
+            player.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
 
-            // TODO: llamar a MythicMobs para spawnear bichos en el futuro
-            plugin.logger.info("Misión iniciada para ${player.name} en ${world.name}")
+            val activeMission = ActiveMission(
+                worldName = world.name,
+                leaderId = player.uniqueId,
+                type = missionType,
+                targetId = targetId,
+                requiredAmount = amount,
+                rewardGold = reward,
+                threatLevel = threat
+            )
+
+            plugin.gameManager.startGame(activeMission, radius)
+            plugin.logger.info("Juego iniciado: ${player.name} vs $targetId ($typeStr) en ${world.name}")
 
         } else {
-            player.sendMessage("§cError Crítico: No se pudo generar la instancia. Reporta esto al staff.")
+            player.sendMessage("§cError Crítico: No se pudo generar la instancia.")
         }
     }
 }
