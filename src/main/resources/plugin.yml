@@ -18,6 +18,10 @@ commands:
     description: instanciar misiones
     usage: /mision <iniciar | salir> <nombre>
     permission: bastion.admin
+  tablon:
+    description: Abrir tablón de misiones
+    usage: /tabon
+    permission: bastion.admin
 
 permissions:
   bastion.admin:

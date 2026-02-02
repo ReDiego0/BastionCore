@@ -56,10 +56,12 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(UltimateListener(),this)
         server.pluginManager.registerEvents(CombatListener(this), this)
         server.pluginManager.registerEvents(MissionListener(this, missionManager), this)
+        server.pluginManager.registerEvents(org.ReDiego0.bastionCore.listener.BoardListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))
         getCommand("mision")?.setExecutor(org.ReDiego0.bastionCore.command.MissionCommand(this))
+        getCommand("tablon")?.setExecutor(org.ReDiego0.bastionCore.command.BoardCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
 
