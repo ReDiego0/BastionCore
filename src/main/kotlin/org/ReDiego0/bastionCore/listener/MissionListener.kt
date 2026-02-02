@@ -3,52 +3,42 @@ package org.ReDiego0.bastionCore.listener
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.MissionManager
 import org.ReDiego0.bastionCore.utils.ContractUtils
-import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.persistence.PersistentDataType
 
-class MissionListener(
-    private val plugin: BastionCore,
-    private val missionManager: MissionManager
-) : Listener {
+class MissionListener(private val plugin: BastionCore, private val missionManager: MissionManager) : Listener {
 
     @EventHandler
     fun onInteract(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
-        if (event.hand != EquipmentSlot.HAND) return
-
         val item = event.item ?: return
         val block = event.clickedBlock ?: return
 
-        val missionId = ContractUtils.getMissionId(item) ?: return
+        if (!item.hasItemMeta()) return
+        val pdc = item.itemMeta.persistentDataContainer
 
-        val config = ContractUtils.getConfig()
-        val type = config.getString("missions.$missionId.type", "CONTRACT")
+        if (!pdc.has(ContractUtils.MISSION_TYPE_KEY, PersistentDataType.STRING)) return
 
-        var isValidLocation = false
+        var requiredBlockName = "OAK_FENCE"
+        val type = pdc.get(ContractUtils.MISSION_TYPE_KEY, PersistentDataType.STRING)
 
-        if (type == "STORY") {
-            // Especiales
-            if (block.type == Material.CARTOGRAPHY_TABLE) {
-                isValidLocation = true
-            } else {
-                event.player.sendMessage("§c[!] Los Expedientes Clasificados deben procesarse en la Sala de Operaciones (Mesa de Cartografía).")
-            }
+        if (type == "PROCEDURAL") {
+            requiredBlockName = pdc.get(ContractUtils.DATA_TRIGGER_KEY, PersistentDataType.STRING) ?: "OAK_FENCE"
         } else {
-            // Misiones normales
-            if (block.type.name.contains("FENCE") || block.type == Material.LECTERN) {
-                isValidLocation = true
-            } else {
-                event.player.sendMessage("§c[!] Los Contratos de Caza se validan en el Muelle (Vallas/Atril).")
-            }
+            val missionId = pdc.get(ContractUtils.MISSION_ID_KEY, PersistentDataType.STRING)
+            requiredBlockName = plugin.config.getString("special.$missionId.trigger_block", "CARTOGRAPHY_TABLE")!!
         }
 
-        if (isValidLocation) {
-            event.isCancelled = true // Evitar que abra el bloque si es interactuable
-            missionManager.startMission(event.player, missionId)
+        if (block.type.name != requiredBlockName) {
+            event.player.sendMessage("§c[!] Lugar incorrecto.")
+            event.player.sendMessage("§7Esta misión debe despacharse en: §e$requiredBlockName")
+            return
         }
+
+        event.isCancelled = true
+        missionManager.startMission(event.player, item)
     }
 }

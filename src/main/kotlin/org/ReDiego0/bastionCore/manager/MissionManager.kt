@@ -4,9 +4,10 @@ import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
 class MissionManager(private val plugin: BastionCore) {
-    fun startMission(player: Player, missionId: String) {
+    fun startMission(player: Player, missionId: ItemStack) {
         val config = ContractUtils.getConfig()
         val path = "missions.$missionId"
 
