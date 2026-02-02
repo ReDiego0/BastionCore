@@ -1,1 +1,33 @@
 citadel_world: "Bastion"
+
+stamina:
+  # Frecuencia de consumo (en Ticks). 20 ticks = 1 segundo.
+  # Cuanto MAYOR el número, MÁS LENTO baja la barra.
+  # Ejemplo: 20 = Baja 1 muslito cada 1 segundo.
+  sprint_drain_interval: 15   # Correr gasta 1 punto cada 0.75s
+  fly_drain_interval: 30      # Volar gasta 1 punto cada 1.5s
+
+  # Frecuencia de regeneración
+  regen_interval: 10          # Recupera 1 punto cada 0.5s
+  regen_delay_ms: 2000        # Tiempo de espera tras gastar para empezar a regenerar
+
+  # Costos mínimos para permitir acciones
+  min_food_to_sprint: 6       # 3 muslitos
+  min_food_to_fly: 4          # 2 muslitos
+
+combat:
+  # Carga de ultimate pasiva (Estar en combate fuera de la ciudad)
+  # Cantidad de carga (0-100) que se gana por segundo.
+  passive_ultimate_gain: 0.5  # Lento (tardaría 200s en llenar sola)
+  damage_ultimate_gain: 2.0  # Carga ganada al golpear
+  damage_ultimate_gain_unarmed: 0.5
+  kill_ultimate_gain: 10.0   # Carga ganada al matar
+
+party:
+  max_size: 4
+
+instances:
+  auto_unload_minutes: 60  # Seguridad: Borrar mundo si nadie entra en 1 hora
+
+gameplay:
+  default_lives: 3

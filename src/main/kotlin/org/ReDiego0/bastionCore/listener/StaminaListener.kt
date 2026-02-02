@@ -18,9 +18,6 @@ class StaminaListener : Listener {
 
             val oldLevel = player.foodLevel
             val newLevel = (oldLevel + amount).coerceIn(0, 20)
-            if (amount < 0) {
-                System.out.println("[DEBUG] Bajando estamina a ${player.name}: $oldLevel -> $newLevel")
-            }
             player.foodLevel = newLevel
             player.removeMetadata(STAMINA_CHANGE_KEY, BastionCore.instance)
         }
