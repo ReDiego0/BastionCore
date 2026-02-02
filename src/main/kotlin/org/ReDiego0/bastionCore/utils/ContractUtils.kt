@@ -10,7 +10,14 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 
 object ContractUtils {
-    private val MISSION_KEY = NamespacedKey(BastionCore.instance, "mission_id")
+    val MISSION_TYPE_KEY = NamespacedKey(BastionCore.instance, "mission_type") // "PROCEDURAL" o "SPECIAL"
+    val MISSION_ID_KEY = NamespacedKey(BastionCore.instance, "mission_id")     // ID en yaml (para especiales)
+
+    val DATA_WORLD_KEY = NamespacedKey(BastionCore.instance, "proc_world")
+    val DATA_BOSS_KEY = NamespacedKey(BastionCore.instance, "proc_boss")
+    val DATA_REWARD_KEY = NamespacedKey(BastionCore.instance, "proc_reward")
+    val DATA_TRIGGER_KEY = NamespacedKey(BastionCore.instance, "proc_trigger") // Bloque necesario
+    val DATA_THREAT_KEY = NamespacedKey(BastionCore.instance, "proc_threat")   // Dificultad (1-5)
 
     private var missionsConfig: YamlConfiguration? = null
 
@@ -49,7 +56,7 @@ object ContractUtils {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS)
         }
 
-        meta.persistentDataContainer.set(MISSION_KEY, PersistentDataType.STRING, missionId)
+        meta.persistentDataContainer.set(MISSION_ID_KEY, PersistentDataType.STRING, missionId)
 
         item.itemMeta = meta
         return item
@@ -57,6 +64,6 @@ object ContractUtils {
 
     fun getMissionId(item: ItemStack?): String? {
         if (item == null || !item.hasItemMeta()) return null
-        return item.itemMeta.persistentDataContainer.get(MISSION_KEY, PersistentDataType.STRING)
+        return item.itemMeta.persistentDataContainer.get(MISSION_ID_KEY, PersistentDataType.STRING)
     }
 }
