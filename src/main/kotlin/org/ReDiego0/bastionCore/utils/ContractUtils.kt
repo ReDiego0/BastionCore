@@ -18,6 +18,7 @@ object ContractUtils {
     val DATA_REWARD_KEY = NamespacedKey(BastionCore.instance, "proc_reward")
     val DATA_TRIGGER_KEY = NamespacedKey(BastionCore.instance, "proc_trigger") // Bloque necesario
     val DATA_THREAT_KEY = NamespacedKey(BastionCore.instance, "proc_threat")   // Dificultad (1-5)
+    val EXPIRATION_KEY = NamespacedKey(BastionCore.instance, "expiration_time")
 
     private var missionsConfig: YamlConfiguration? = null
 
@@ -65,5 +66,33 @@ object ContractUtils {
     fun getMissionId(item: ItemStack?): String? {
         if (item == null || !item.hasItemMeta()) return null
         return item.itemMeta.persistentDataContainer.get(MISSION_ID_KEY, PersistentDataType.STRING)
+    }
+
+    fun stampExpiration(item: ItemStack): ItemStack {
+        val meta = item.itemMeta ?: return item
+        val minutes = BastionCore.instance.config.getInt("settings.contract_expiration_minutes", 45)
+
+        val expiryDate = System.currentTimeMillis() + (minutes * 60 * 1000)
+
+        meta.persistentDataContainer.set(EXPIRATION_KEY, PersistentDataType.LONG, expiryDate)
+
+        val lore = meta.lore ?: ArrayList()
+        lore.add("")
+        lore.add("§c⚠ Expira en: $minutes min")
+        lore.add("§8(El tiempo corre tras aceptarlo)")
+        meta.lore = lore
+
+        item.itemMeta = meta
+        return item
+    }
+
+    fun isExpired(item: ItemStack): Boolean {
+        if (!item.hasItemMeta()) return false
+        val pdc = item.itemMeta.persistentDataContainer
+
+        if (!pdc.has(EXPIRATION_KEY, PersistentDataType.LONG)) return false // No tiene fecha = No expira (Especiales)
+
+        val expiryTime = pdc.get(EXPIRATION_KEY, PersistentDataType.LONG) ?: 0L
+        return System.currentTimeMillis() > expiryTime
     }
 }

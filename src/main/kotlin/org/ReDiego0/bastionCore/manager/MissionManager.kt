@@ -37,7 +37,7 @@ class MissionManager(private val plugin: BastionCore) {
 
         if (world != null) {
             val handItem = player.inventory.itemInMainHand
-            handItem.amount = handItem.amount - 1
+            handItem.amount -= 1
 
             player.teleport(world.spawnLocation)
 

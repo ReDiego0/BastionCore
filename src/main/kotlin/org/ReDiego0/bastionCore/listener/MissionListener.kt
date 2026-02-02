@@ -22,6 +22,14 @@ class MissionListener(private val plugin: BastionCore, private val missionManage
 
         if (!pdc.has(ContractUtils.MISSION_TYPE_KEY, PersistentDataType.STRING)) return
 
+        if (ContractUtils.isExpired(item)) {
+            event.player.sendMessage("§c[!] Este contrato ha expirado.")
+            event.player.playSound(event.player.location, org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 0.5f)
+
+            event.player.inventory.setItemInMainHand(null)
+            return
+        }
+
         var requiredBlockName = "OAK_FENCE"
         val type = pdc.get(ContractUtils.MISSION_TYPE_KEY, PersistentDataType.STRING)
 
