@@ -2,6 +2,8 @@ name: BastionCore
 version: '1.0.0'
 main: org.ReDiego0.bastionCore.BastionCore
 api-version: '1.21'
+softdepend:
+  - PlaceholderAPI
 commands:
   bastiondebug:
     description: Comandos de prueba para desarrolladores (armas, stats).

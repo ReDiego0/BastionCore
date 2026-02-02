@@ -1,0 +1,54 @@
+# Configuración global
+settings:
+  default_contract_block: OAK_FENCE
+  default_story_block: CARTOGRAPHY_TABLE
+  board_rotation_minutes: 60
+  contract_expiration_minutes: 45
+
+# --- PLANTILLAS DE GENERACIÓN (Procedural) ---
+templates:
+  bosque_novato:
+    display_name: "Caza en el Bosque"
+    world_template: "bosque"
+    level_range: "1-10"
+    trigger_block: OAK_FENCE
+
+    # Pool de posibles objetivos
+    possible_bosses:
+      - mob: "MythicMob_Jabalí"
+        weight: 50       # Probabilidad alta
+        base_reward: 100
+        threat_level: 1
+      - mob: "MythicMob_LoboAlpha"
+        weight: 20
+        base_reward: 250
+        threat_level: 2
+
+    # Configuración de minions
+    minions:
+      mob: "MythicMob_Slime"
+      amount_per_player: 5
+
+# --- MISIONES ESPECIALES (Fijas / Historia / Eventos) ---
+special:
+  historia_cap1:
+    display_name: "&cEXPEDIENTE: La Amenaza Roja"
+    world_template: "pico_ceniza"
+    trigger_block: CARTOGRAPHY_TABLE
+    time_limit: 1800
+
+    # Recompensas fijas
+    rewards:
+      money: 5000
+      items:
+        - "DIAMOND_SWORD:1"
+        - "GOLDEN_APPLE:5"
+      commands:
+        - "lp user %player% parent set rango2"
+
+    spawns:
+      boss: "MythicMob_Rathalos"
+
+    item:
+      material: WRITTEN_BOOK
+      glow: true
