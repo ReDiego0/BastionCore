@@ -1,54 +1,103 @@
-# Configuración global
 settings:
   default_contract_block: OAK_FENCE
   default_story_block: CARTOGRAPHY_TABLE
-  board_rotation_minutes: 60
-  contract_expiration_minutes: 45
+  board_rotation_minutes: 5
+  contract_expiration_minutes: 5
+  missions_per_rotation: 15
 
-# --- PLANTILLAS DE GENERACIÓN (Procedural) ---
 templates:
-  bosque_novato:
-    display_name: "Caza en el Bosque"
-    world_template: "bosque"
-    level_range: "1-10"
+
+  # ==========================================================
+  # PLANTILLA 1: CAZA
+  # ==========================================================
+  bosque_caceria_novato:
+    display_name: "Contrato de Caza: Bosque"
+    world_template: "test"    # /templates/{nombre del mapa}
+    mission_type: HUNT
+    trigger_block: OAK_FENCE  # Interactuarán con ese bloque para empezar la misión
+    radius: 60                # El mob spawneara en ese radio
+    threat_level: 1
+
+    # El código elegirá UNO de estos al azar basado en el peso (weight)
+    objectives:
+      - id: "ZOMBIE"          # Objetivo A
+        weight: 40            # 40% probabilidad
+        base_reward: 100      # Paga base (el código le añade variación +/- 10%)
+
+      - id: "SKELETON"        # Objetivo B
+        weight: 40
+        base_reward: 120      # Los esqueletos pagan más
+
+      - id: "SPIDER"          # Objetivo C
+        weight: 20            # Raro (20%)
+        base_reward: 150
+
+  # ==========================================================
+  # PLANTILLA 2: EXTERMINIO
+  # ==========================================================
+  bosque_limpieza_novato:
+    display_name: "Contrato de Exterminio: Bosque"
+    world_template: "test"
+    mission_type: EXTERMINATION
     trigger_block: OAK_FENCE
+    radius: 80
+    threat_level: 2
 
-    # Pool de posibles objetivos
-    possible_bosses:
-      - mob: "MythicMob_Jabalí"
-        weight: 50       # Probabilidad alta
-        base_reward: 100
-        threat_level: 1
-      - mob: "MythicMob_LoboAlpha"
+    objectives:
+      - id: "ZOMBIE"          # Misión: Matar 10 Zombies
+        amount: 10
+        weight: 30
+        base_reward: 200
+
+      - id: "SLIME"           # Misión: Matar 15 Slimes
+        amount: 15
+        weight: 30
+        base_reward: 180
+
+      - id: "SILVERFISH"      # Misión: Matar 8 Silverfish (Raro)
+        amount: 8
+        weight: 10
+        base_reward: 300
+
+  # ==========================================================
+  # PLANTILLA 3: RECOLECCIÓN
+  # ==========================================================
+  bosque_suministros:
+    display_name: "Contrato de Suministros: Bosque"
+    world_template: "test"
+    mission_type: GATHER
+    trigger_block: OAK_FENCE
+    threat_level: 1
+
+    objectives:
+      - id: "OAK_LOG"         # Misión: Traer Madera
+        amount: 32
+        weight: 50
+        base_reward: 80
+
+      - id: "WHEAT_SEEDS"     # Misión: Traer Semillas
+        amount: 16
+        weight: 30
+        base_reward: 50
+
+      - id: "RED_MUSHROOM"    # Misión: Traer Setas
+        amount: 10
         weight: 20
-        base_reward: 250
-        threat_level: 2
+        base_reward: 150
 
-    # Configuración de minions
-    minions:
-      mob: "MythicMob_Slime"
-      amount_per_player: 5
-
-# --- MISIONES ESPECIALES (Fijas / Historia / Eventos) ---
+# --- MISIONES ESPECIALES ---
 special:
   historia_cap1:
     display_name: "&cEXPEDIENTE: La Amenaza Roja"
-    world_template: "pico_ceniza"
+    world_template: "test"
     trigger_block: CARTOGRAPHY_TABLE
-    time_limit: 1800
-
-    # Recompensas fijas
+    type: STORY
+    requirements:
+      min_rank: 1
     rewards:
       money: 5000
-      items:
-        - "DIAMOND_SWORD:1"
-        - "GOLDEN_APPLE:5"
-      commands:
-        - "lp user %player% parent set rango2"
-
     spawns:
-      boss: "MythicMob_Rathalos"
-
+      boss: "IRON_GOLEM"
     item:
       material: WRITTEN_BOOK
       glow: true
