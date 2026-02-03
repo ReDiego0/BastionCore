@@ -6,6 +6,7 @@ import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.*
 import org.ReDiego0.bastionCore.manager.*
 import org.ReDiego0.bastionCore.task.StaminaTask
+import org.ReDiego0.bastionCore.task.TrackingTask
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
@@ -65,6 +66,7 @@ class BastionCore : JavaPlugin() {
         getCommand("tablon")?.setExecutor(org.ReDiego0.bastionCore.command.BoardCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
+        TrackingTask(this).runTaskTimer(this, 20L, 2L)
 
         logger.info("§a[BastionCore] Sistemas de soporte vital activos. Ciudadela: $citadelWorldName")
 
