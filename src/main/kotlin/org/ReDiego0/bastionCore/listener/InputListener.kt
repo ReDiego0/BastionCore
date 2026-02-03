@@ -45,7 +45,7 @@ class InputListener(
         if (weaponType == WeaponType.NONE) return
 
         event.isCancelled = true
-        combatManager.handleWeaponUltimate(player, weaponType)
+        combatManager.handleWeaponPrimary(player, weaponType)
     }
 
     @EventHandler
