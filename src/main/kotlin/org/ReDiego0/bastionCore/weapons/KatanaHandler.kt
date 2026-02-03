@@ -2,7 +2,6 @@ package org.ReDiego0.bastionCore.combat.weapons
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
-import org.bukkit.Color
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -54,10 +53,9 @@ class KatanaHandler(private val plugin: BastionCore) {
             val stepVec = dir.clone().multiply(traveledDistance / points)
             val drawLoc = startLoc.clone().add(0.0, 1.0, 0.0)
 
-            val dust = Particle.DustOptions(Color.AQUA, 1.0f)
-
             for (i in 0..points) {
-                player.world.spawnParticle(Particle.DUST, drawLoc, 1, 0.0, 0.0, 0.0, 0.0, dust)
+                player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, drawLoc, 1, 0.0, 0.0, 0.0, 0.0)
+                player.world.spawnParticle(Particle.WAX_OFF, drawLoc, 1, 0.0, 0.0, 0.0, 0.0)
                 drawLoc.add(stepVec)
             }
 
