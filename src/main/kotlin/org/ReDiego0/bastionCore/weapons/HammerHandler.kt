@@ -2,6 +2,7 @@ package org.ReDiego0.bastionCore.combat.weapons
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -15,32 +16,24 @@ class HammerHandler(private val plugin: BastionCore) {
 
     fun handleRightClick(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_SECONDARY, 8.0)
-        player.velocity = player.location.direction.multiply(1.0).setY(1.2)
-        player.playSound(player.location, Sound.ENTITY_IRON_GOLEM_ATTACK, 1f, 0.5f)
 
-        for (e in player.world.getNearbyEntities(player.location, 2.5, 3.0, 2.5)) {
+        player.playSound(player.location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1f, 0.5f)
+
+        try {
+            val dirt = Material.DIRT.createBlockData()
+            player.world.spawnParticle(Particle.BLOCK, player.location.add(player.location.direction), 30, 0.5, 0.5, 0.5, dirt)
+        } catch (e: Exception) {}
+
+        val impactLoc = player.location.add(player.location.direction.multiply(1.5))
+
+        for (e in player.world.getNearbyEntities(impactLoc, 3.0, 3.0, 3.0)) {
             if (e is LivingEntity && e != player) {
-                e.damage(10.0, player)
-                e.velocity = Vector(0, 1, 0)
+                e.noDamageTicks = 0
+                e.damage(15.0, player)
+                e.velocity = Vector(0.0, 1.2, 0.0)
+                e.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 40, 2))
             }
         }
-
-        plugin.server.scheduler.runTaskLater(plugin, Runnable {
-            if (!player.isOnline) return@Runnable
-
-            player.world.spawnParticle(Particle.EXPLOSION, player.location, 3)
-            player.world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, player.location, 20, 1.0, 0.1, 1.0, 0.1)
-            player.playSound(player.location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1f, 0.5f)
-
-            for (e in player.world.getNearbyEntities(player.location, 5.0, 6.0, 5.0)) {
-                if (e is LivingEntity && e != player) {
-                    e.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 60, 2))
-                    e.noDamageTicks = 0
-                    e.damage(15.0, player)
-                    e.velocity = Vector(0.0, 0.5, 0.0)
-                }
-            }
-        }, 15L)
     }
 
     fun handlePrimary(player: Player) {

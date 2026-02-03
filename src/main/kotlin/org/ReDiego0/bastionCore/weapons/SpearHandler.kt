@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import org.bukkit.util.Vector
+import org.bukkit.scheduler.BukkitRunnable
 
 class SpearHandler(private val plugin: BastionCore) {
 
@@ -25,30 +25,37 @@ class SpearHandler(private val plugin: BastionCore) {
     fun handlePrimary(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 10.0)
 
-        player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
-        player.velocity = Vector(0.0, 2.5, 0.0)
+        val loc = player.location
 
-        plugin.server.scheduler.runTaskLater(plugin, Runnable {
-            if (!player.isOnline) return@Runnable
+        object : BukkitRunnable() {
+            var hits = 0
+            override fun run() {
+                if (!player.isOnline || hits >= 10) {
+                    this.cancel()
+                    player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f)
+                    val front = player.location.add(player.location.direction.multiply(2))
+                    player.world.spawnParticle(Particle.EXPLOSION, front, 1)
+                    return
+                }
+                hits++
 
-            player.velocity = player.location.direction.multiply(3).setY(-2.0)
-            player.fallDistance = 0f
-            player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, player.location, 20)
+                player.teleport(loc.setDirection(player.location.direction))
+                val eye = player.eyeLocation.subtract(0.0, 0.3, 0.0)
+                val target = eye.clone().add(eye.direction.multiply(3))
 
-            plugin.server.scheduler.runTaskLater(plugin, Runnable {
-                if (!player.isOnline) return@Runnable
+                player.world.spawnParticle(Particle.CRIT, target, 3, 0.1, 0.1, 0.1, 0.0)
+                player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 2f)
 
-                player.world.createExplosion(player.location, 0f, false)
-
-                for (e in player.world.getNearbyEntities(player.location, 5.0, 5.0, 5.0)) {
+                val damageLoc = player.location.add(player.location.direction.multiply(2))
+                for (e in player.world.getNearbyEntities(damageLoc, 1.5, 1.5, 1.5)) {
                     if (e is LivingEntity && e != player) {
                         e.noDamageTicks = 0
-                        e.damage(25.0, player)
-                        e.velocity = e.location.toVector().subtract(player.location.toVector()).normalize().multiply(0.5).setY(0.5)
+                        e.damage(4.0, player)
+                        e.velocity = player.location.direction.multiply(0.3)
                     }
                 }
-            }, 5L)
-        }, 12L)
+            }
+        }.runTaskTimer(plugin, 0L, 2L)
     }
 
     fun triggerExplosiveCounter(player: Player) {

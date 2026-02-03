@@ -6,7 +6,6 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.util.Vector
 
 class KatanaHandler(private val plugin: BastionCore) {
 
@@ -24,25 +23,44 @@ class KatanaHandler(private val plugin: BastionCore) {
     fun handlePrimary(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
 
-        player.velocity = Vector(0.0, 1.5, 0.0)
-        player.playSound(player.location, Sound.ENTITY_BAT_TAKEOFF, 1f, 1f)
+        player.playSound(player.location, Sound.BLOCK_IRON_DOOR_OPEN, 1f, 2f)
+        player.sendMessage("§7Preparando...")
 
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             if (!player.isOnline) return@Runnable
 
-            player.velocity = Vector(0.0, -2.0, 0.0)
+            val startLoc = player.location
+            val direction = startLoc.direction.normalize().multiply(6)
 
-            player.world.spawnParticle(Particle.SWEEP_ATTACK, player.location.add(0.0, 1.0, 0.0), 5)
-            player.world.spawnParticle(Particle.CRIT, player.location, 20, 0.5, 1.5, 0.5)
+            val dest = startLoc.clone().add(direction)
+            if (dest.block.type.isSolid) {
+                player.velocity = direction.normalize().multiply(1)
+            } else {
+                player.teleport(dest) // Teleport es más seguro para hitboxes que velocity
+                player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.5f)
+                player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 2f)
+            }
 
-            player.playSound(player.location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 1f, 2f)
+            val steps = 20
+            val stepVec = direction.clone().multiply(1.0/steps)
+            val drawLoc = startLoc.clone().add(0.0, 1.0, 0.0)
 
-            for (e in player.world.getNearbyEntities(player.location, 5.0, 6.0, 5.0)) {
+            for (i in 0..steps) {
+                player.world.spawnParticle(Particle.SWEEP_ATTACK, drawLoc, 1)
+                player.world.spawnParticle(Particle.CRIT, drawLoc, 5, 0.2, 0.2, 0.2, 0.0)
+                drawLoc.add(stepVec)
+            }
+
+            val damageBoxCenter = startLoc.clone().add(direction.clone().multiply(0.5))
+
+            for (e in player.world.getNearbyEntities(damageBoxCenter, 5.0, 3.0, 5.0)) {
                 if (e is LivingEntity && e != player) {
                     e.noDamageTicks = 0
-                    e.damage(30.0, player)
+                    e.damage(35.0, player)
+                    player.world.spawnParticle(Particle.BLOCK, e.location.add(0.0, 1.0, 0.0), 10, 0.3, 0.3, 0.3, org.bukkit.Material.REDSTONE_BLOCK.createBlockData())
                 }
             }
+
         }, 10L)
     }
 
