@@ -6,6 +6,8 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.util.Vector
 
 class KatanaHandler(private val plugin: BastionCore) {
 
@@ -21,65 +23,57 @@ class KatanaHandler(private val plugin: BastionCore) {
     }
 
     fun handlePrimary(player: Player) {
-        plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
+        plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 8.0)
 
-        player.playSound(player.location, Sound.BLOCK_IRON_DOOR_OPEN, 1f, 2f)
-        player.world.spawnParticle(Particle.CRIT, player.location, 10, 0.5, 1.0, 0.5)
+        player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.5f)
+        player.playSound(player.location, Sound.ENTITY_WITHER_SHOOT, 0.5f, 2.0f) // Sonido de "Woosh" agudo
 
-        val startLoc = player.location.clone()
+        val startLoc = player.eyeLocation.subtract(0.0, 0.5, 0.0) // Altura de la cintura
+        val direction = player.location.direction.normalize()
 
-        plugin.server.scheduler.runTaskLater(plugin, Runnable {
-            if (!player.isOnline) return@Runnable
+        val rightVec = direction.clone().crossProduct(Vector(0, 1, 0)).normalize()
 
-            val dir = startLoc.direction.clone().setY(0.0).normalize()
-            var safeDest = startLoc.clone()
-            var traveledDistance = 0.0
+        object : BukkitRunnable() {
+            var distance = 0.0
+            val maxRange = 10.0
+            val width = 2.5
 
-            for (i in 1..8) {
-                val checkLoc = startLoc.clone().add(dir.clone().multiply(i.toDouble()))
-                if (checkLoc.block.type.isSolid || checkLoc.clone().add(0.0, 1.0, 0.0).block.type.isSolid) {
-                    break
-                }
-                safeDest = checkLoc
-                traveledDistance = i.toDouble()
-            }
-
-            safeDest.yaw = player.location.yaw
-            safeDest.pitch = player.location.pitch
-            player.teleport(safeDest)
-            player.playSound(player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.5f)
-
-            val points = 20
-            val stepVec = dir.clone().multiply(traveledDistance / points)
-            val drawLoc = startLoc.clone().add(0.0, 1.0, 0.0)
-
-            for (i in 0..points) {
-                player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, drawLoc, 1, 0.0, 0.0, 0.0, 0.0)
-                player.world.spawnParticle(Particle.WAX_OFF, drawLoc, 1, 0.0, 0.0, 0.0, 0.0)
-                drawLoc.add(stepVec)
-            }
-
-            plugin.server.scheduler.runTaskLater(plugin, Runnable {
-                player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.5f)
-                player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.5f, 2f)
-
-                val burstLoc = startLoc.clone().add(0.0, 1.0, 0.0)
-                for (i in 0..points step 2) {
-                    player.world.spawnParticle(Particle.SWEEP_ATTACK, burstLoc, 1)
-                    player.world.spawnParticle(Particle.FLASH, burstLoc, 1)
-                    burstLoc.add(stepVec.clone().multiply(2))
+            override fun run() {
+                if (!player.isOnline || distance > maxRange) {
+                    this.cancel()
+                    return
                 }
 
-                val center = startLoc.clone().add(dir.clone().multiply(traveledDistance / 2))
-                for (e in player.world.getNearbyEntities(center, (traveledDistance/2) + 1.5, 3.0, (traveledDistance/2) + 1.5)) {
+                distance += 1.5
+                val currentCenter = startLoc.clone().add(direction.clone().multiply(distance))
+
+                if (currentCenter.block.type.isSolid) {
+                    player.world.spawnParticle(Particle.EXPLOSION, currentCenter, 1)
+                    this.cancel()
+                    return
+                }
+
+                var i = -width
+                while (i <= width) {
+                    val particleLoc = currentCenter.clone().add(rightVec.clone().multiply(i))
+
+                    player.world.spawnParticle(Particle.SWEEP_ATTACK, particleLoc, 0, direction.x, direction.y, direction.z)
+                    player.world.spawnParticle(Particle.CLOUD, particleLoc, 0, direction.x, direction.y, direction.z, 0.1)
+
+                    i += 0.5
+                }
+
+                for (e in player.world.getNearbyEntities(currentCenter, width, 1.5, width)) {
                     if (e is LivingEntity && e != player) {
                         e.noDamageTicks = 0
-                        e.damage(35.0, player)
+                        e.damage(30.0, player)
+
+                        e.velocity = direction.clone().multiply(0.8).setY(0.2)
+                        player.world.spawnParticle(Particle.CRIT, e.location.add(0.0, 1.0, 0.0), 5)
                     }
                 }
-            }, 5L)
-
-        }, 8L)
+            }
+        }.runTaskTimer(plugin, 0L, 1L)
     }
 
     fun triggerParryCounter(player: Player) {
