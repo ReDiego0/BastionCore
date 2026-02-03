@@ -19,11 +19,9 @@ class InputListener(
 ) : Listener {
 
     @EventHandler
-    fun onRightClick(event: PlayerInteractEvent) {
+    fun onInteract(event: PlayerInteractEvent) {
         val player = event.player
         if (!player.world.name.startsWith("inst_")) return
-
-        if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
         if (event.hand != EquipmentSlot.HAND) return
 
         val item = player.inventory.itemInMainHand
@@ -31,13 +29,24 @@ class InputListener(
 
         if (weaponType == WeaponType.NONE) return
 
-        combatManager.handleRightClick(player, weaponType)
+        if (weaponType == WeaponType.BOW) {
+            if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
+                event.isCancelled = true
+                combatManager.handleRightClick(player, weaponType)
+            }
+            return
+        }
+
+        if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
+            combatManager.handleRightClick(player, weaponType)
+        }
     }
+
 
     @EventHandler
     fun onDrop(event: PlayerDropItemEvent) {
         val player = event.player
-        if (!player.world.name.startsWith("inst_")) return // Solo instancias
+        if (!player.world.name.startsWith("inst_")) return
 
         val itemStack = event.itemDrop.itemStack
         val weaponType = ItemTags.getWeaponType(itemStack)
