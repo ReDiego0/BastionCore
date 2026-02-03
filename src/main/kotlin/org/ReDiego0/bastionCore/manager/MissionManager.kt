@@ -30,6 +30,16 @@ class MissionManager(private val plugin: BastionCore) {
 
         val missionType = try { MissionType.valueOf(typeStr) } catch (e: Exception) { MissionType.HUNT }
 
+        val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
+
+        if (data.hunterRank < threat) {
+            player.sendMessage("§c[!] Acceso Denegado.")
+            player.sendMessage("§7Esta misión requiere Rango de Cazador: §e$threat")
+            player.sendMessage("§7Tu Rango actual es: §c${data.hunterRank}")
+            player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
+            return
+        }
+
         player.sendMessage("§e[Sistema] §fGenerando zona de despliegue: $templateWorld...")
 
         val world = plugin.instanceManager.createInstance(templateWorld)

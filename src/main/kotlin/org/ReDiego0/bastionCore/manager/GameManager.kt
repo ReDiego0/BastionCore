@@ -102,8 +102,8 @@ class GameManager(private val plugin: BastionCore) {
             player.sendTitle("§6¡MISIÓN CUMPLIDA!", "§7Objetivos completados.", 10, 80, 20)
             player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
 
-            RewardManager.grantReward(player, mission.rewardGold, emptyList(), emptyList())
-
+            val xpReward = (mission.rewardGold * 0.10).toInt().coerceAtLeast(10)
+            RewardManager.grantReward(player, mission.rewardGold, emptyList(), emptyList(), xpReward)
             player.sendMessage("§e[Extracción] §fLa aeronave de recogida llegará en 15 segundos.")
         }
 

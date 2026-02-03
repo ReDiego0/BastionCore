@@ -1,28 +1,43 @@
 package org.ReDiego0.bastionCore.manager
 
-import org.bukkit.Bukkit
-import org.bukkit.Material
+import org.ReDiego0.bastionCore.BastionCore
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 object RewardManager {
 
-    fun grantReward(player: Player, money: Double, items: List<String>, commands: List<String>) {
-        player.sendMessage("§6+$money Oro")
+    fun grantReward(player: Player, gold: Double, items: List<ItemStack>, commands: List<String>, xp: Int = 0) {
 
-        for (itemStr in items) {
-            val parts = itemStr.split(":")
-            val mat = Material.getMaterial(parts[0]) ?: continue
-            val amount = if (parts.size > 1) parts[1].toInt() else 1
-
-            player.inventory.addItem(ItemStack(mat, amount))
-            player.sendMessage("§a+Recibido: $amount x ${mat.name}")
+        if (gold > 0) {
+            val eco = BastionCore.instance.economy
+            if (eco != null) {
+                eco.depositPlayer(player, gold)
+                player.sendMessage("§6+ $gold Oro")
+            } else {
+                BastionCore.instance.logger.warning("Error: No se pudo entregar oro a ${player.name} (Fallo en Economy Hook)")
+            }
         }
 
-        val console = Bukkit.getConsoleSender()
+        if (xp > 0) {
+            val data = BastionCore.instance.playerDataManager.getData(player.uniqueId)
+            data?.addGuildPoints(xp)
+            player.sendMessage("§b+ $xp Puntos de Gremio")
+        }
+
+        for (item in items) {
+            if (player.inventory.firstEmpty() != -1) {
+                player.inventory.addItem(item)
+            } else {
+                player.world.dropItemNaturally(player.location, item)
+                player.sendMessage("§cInventario lleno. Recompensa dejada en el suelo.")
+            }
+        }
+
         for (cmd in commands) {
-            val finalCmd = cmd.replace("%player%", player.name)
-            Bukkit.dispatchCommand(console, finalCmd)
+            org.bukkit.Bukkit.dispatchCommand(
+                org.bukkit.Bukkit.getConsoleSender(),
+                cmd.replace("%player%", player.name)
+            )
         }
     }
 }

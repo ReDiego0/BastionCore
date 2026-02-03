@@ -1,24 +1,24 @@
 package org.ReDiego0.bastionCore.manager
 
+import org.ReDiego0.bastionCore.BastionCore
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
-class VaultManager {
-    private val vaults = ConcurrentHashMap<UUID, Inventory>()
+class VaultManager(private val plugin: BastionCore) {
+    private val vaults = HashMap<UUID, Inventory>()
 
     fun openVault(player: Player) {
-        val vault = vaults.computeIfAbsent(player.uniqueId) {
-            Bukkit.createInventory(null, 54, "§8Baúl de Equipamiento")
-        }
-        player.openInventory(vault)
-        player.playSound(player.location, org.bukkit.Sound.BLOCK_CHEST_OPEN, 1f, 1f)
+        val inv = getVault(player.uniqueId)
+        player.openInventory(inv)
     }
 
-    // guardar datos (onDisable)
-    fun saveAll() {
-        // Aquí iría la lógica de serialización a YAML/SQL
+    private fun getVault(uuid: UUID): Inventory {
+        if (!vaults.containsKey(uuid)) {
+            val newVault = Bukkit.createInventory(null, 27, "§8Baúl Personal")
+            vaults[uuid] = newVault
+        }
+        return vaults[uuid]!!
     }
 }

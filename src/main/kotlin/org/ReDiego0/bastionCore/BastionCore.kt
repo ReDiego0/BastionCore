@@ -1,5 +1,6 @@
 package org.ReDiego0.bastionCore
 
+import net.milkbowl.vault.economy.Economy
 import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.CitadelListener
@@ -17,6 +18,7 @@ import org.ReDiego0.bastionCore.manager.MissionManager
 import org.ReDiego0.bastionCore.manager.VaultManager
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.ReDiego0.bastionCore.utils.ContractUtils
+import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 
 class BastionCore : JavaPlugin() {
@@ -35,6 +37,8 @@ class BastionCore : JavaPlugin() {
     lateinit var missionManager: MissionManager
     lateinit var gameManager: GameManager
 
+    var economy: Economy? = null
+
     var citadelWorldName: String = "Bastion"
 
     override fun onEnable() {
@@ -46,7 +50,7 @@ class BastionCore : JavaPlugin() {
         playerDataManager = PlayerDataManager(this)
         cooldownManager = CooldownManager()
         combatManager = CombatManager(this)
-        vaultManager = VaultManager()
+        vaultManager = VaultManager(this)
         instanceManager = InstanceManager(this)
         boardCycleManager = BoardCycleManager(this)
         missionManager = MissionManager(this)
@@ -72,6 +76,11 @@ class BastionCore : JavaPlugin() {
 
         logger.info("§a[BastionCore] Sistemas de soporte vital activos. Ciudadela: $citadelWorldName")
 
+        if (!setupEconomy()) {
+            logger.severe("¡Desactivado! No se encontró la dependencia Vault o un plugin de economía (Essentials).")
+            server.pluginManager.disablePlugin(this)
+            return
+        }
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
             org.ReDiego0.bastionCore.hooks.BastionExpansion(this).register()
             logger.info("[BastionCore] PlaceholderAPI detectado y conectado.")
@@ -81,5 +90,17 @@ class BastionCore : JavaPlugin() {
     override fun onDisable() {
         instanceManager.cleanupAll()
         logger.info("§c[BastionCore] Cerrando conexión con el servidor central...")
+    }
+
+    private fun setupEconomy(): Boolean {
+        if (server.pluginManager.getPlugin("Vault") == null) {
+            return false
+        }
+        val rsp: RegisteredServiceProvider<Economy>? = server.servicesManager.getRegistration(Economy::class.java)
+        if (rsp == null) {
+            return false
+        }
+        economy = rsp.provider
+        return economy != null
     }
 }

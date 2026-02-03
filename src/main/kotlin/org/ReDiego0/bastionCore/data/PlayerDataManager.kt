@@ -30,6 +30,7 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
 
         updateFlightPermission(player)
         updateWorldContext(event.player)
+        data.syncVanillaExp()
     }
 
     @EventHandler

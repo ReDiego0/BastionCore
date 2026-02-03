@@ -14,6 +14,7 @@ repositories {
     }
     maven("https://repo.extendedclip.com/releases/")
     maven("https://mvn.lumine.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -21,6 +22,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compileOnly("me.clip:placeholderapi:2.11.7")
     compileOnly("io.lumine:Mythic-Dist:5.6.1")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 
 tasks {
