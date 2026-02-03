@@ -23,6 +23,7 @@ object ContractUtils {
     val DATA_REQUIRED_AMOUNT_KEY = NamespacedKey(BastionCore.instance, "proc_amount")
     val DATA_SPAWN_RADIUS_KEY = NamespacedKey(BastionCore.instance, "proc_radius")
 
+    val DATA_TEMPLATE_ID_KEY = NamespacedKey(BastionCore.instance, "proc_template_id")
 
     private var missionsConfig: YamlConfiguration? = null
 

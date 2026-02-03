@@ -15,6 +15,7 @@ repositories {
     maven("https://repo.extendedclip.com/releases/")
     maven("https://mvn.lumine.io/repository/maven-public/")
     maven("https://jitpack.io")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
@@ -25,6 +26,8 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
     }
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0")
 }
 
 tasks {

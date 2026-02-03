@@ -1,6 +1,6 @@
 package org.ReDiego0.bastionCore.combat
 
-import java.util.UUID
+import java.util.*
 
 data class ActiveMission(
     val worldName: String,
@@ -12,5 +12,7 @@ data class ActiveMission(
     var currentProgress: Int = 0,
 
     val rewardGold: Double,
-    val threatLevel: Int
+    val threatLevel: Int,
+
+    val allowedBlocks: Set<String> = emptySet()
 )
