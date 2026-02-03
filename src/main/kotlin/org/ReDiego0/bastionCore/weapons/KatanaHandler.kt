@@ -2,7 +2,6 @@ package org.ReDiego0.bastionCore.combat.weapons
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
-import org.bukkit.Color
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -33,12 +32,12 @@ class KatanaHandler(private val plugin: BastionCore) {
 
             player.velocity = Vector(0.0, -2.0, 0.0)
 
-            val dust = Particle.DustOptions(Color.RED, 2f)
-            player.world.spawnParticle(Particle.DUST, player.location.add(0.0, 1.0, 0.0), 20, 0.5, 1.5, 0.5, dust)
+            player.world.spawnParticle(Particle.SWEEP_ATTACK, player.location.add(0.0, 1.0, 0.0), 5)
+            player.world.spawnParticle(Particle.CRIT, player.location, 20, 0.5, 1.5, 0.5)
 
             player.playSound(player.location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 1f, 2f)
 
-            for (e in player.world.getNearbyEntities(player.location, 5.0, 5.0, 5.0)) {
+            for (e in player.world.getNearbyEntities(player.location, 5.0, 6.0, 5.0)) {
                 if (e is LivingEntity && e != player) {
                     e.noDamageTicks = 0
                     e.damage(30.0, player)

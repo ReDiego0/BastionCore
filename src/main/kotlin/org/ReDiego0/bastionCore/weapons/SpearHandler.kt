@@ -29,14 +29,20 @@ class SpearHandler(private val plugin: BastionCore) {
         player.velocity = Vector(0.0, 2.5, 0.0)
 
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
+            if (!player.isOnline) return@Runnable
+
             player.velocity = player.location.direction.multiply(3).setY(-2.0)
             player.fallDistance = 0f
             player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, player.location, 20)
 
             plugin.server.scheduler.runTaskLater(plugin, Runnable {
-                player.world.createExplosion(player.location, 0f)
-                for (e in player.world.getNearbyEntities(player.location, 4.0, 3.0, 4.0)) {
+                if (!player.isOnline) return@Runnable
+
+                player.world.createExplosion(player.location, 0f, false)
+
+                for (e in player.world.getNearbyEntities(player.location, 5.0, 5.0, 5.0)) {
                     if (e is LivingEntity && e != player) {
+                        e.noDamageTicks = 0
                         e.damage(25.0, player)
                         e.velocity = e.location.toVector().subtract(player.location.toVector()).normalize().multiply(0.5).setY(0.5)
                     }
