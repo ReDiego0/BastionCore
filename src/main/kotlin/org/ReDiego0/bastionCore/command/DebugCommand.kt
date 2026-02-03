@@ -1,5 +1,6 @@
 package org.ReDiego0.bastionCore.command
 
+import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.combat.WeaponType
 import org.ReDiego0.bastionCore.utils.ItemTags
 import org.bukkit.Material
@@ -35,6 +36,15 @@ class DebugCommand : CommandExecutor {
 
             } catch (e: IllegalArgumentException) {
                 sender.sendMessage("§cTipo de arma inválido.")
+            }
+
+            if (args.isNotEmpty() && args[0].equals("addxp", ignoreCase = true)) {
+                val amount = args[1].toIntOrNull() ?: 10
+                val data = BastionCore.instance.playerDataManager.getData(sender.uniqueId)
+
+                sender.sendMessage("§e[Debug] §fAñadiendo $amount XP...")
+                data?.addGuildPoints(amount)
+                return true
             }
         }
         return true
