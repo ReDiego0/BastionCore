@@ -60,6 +60,31 @@ class BastionExpansion(private val plugin: BastionCore) : PlaceholderExpansion()
             return String.format("%02d:%02d", minutes, seconds)
         }
 
+        if (params.equals("mission_lives_visual", ignoreCase = true)) {
+            if (activeMission == null) return ""
+            return generateLivesVisual(activeMission.currentLives, activeMission.maxLives)
+        }
+
         return null
+    }
+
+    private fun generateLivesVisual(current: Int, max: Int): String {
+        val activeSymbol = plugin.config.getString("gameplay.life_symbol_active", "&c❤")!!.replace("&", "§")
+        val lostSymbol = plugin.config.getString("gameplay.life_symbol_lost", "&8☠")!!.replace("&", "§")
+
+        val sb = StringBuilder()
+
+        repeat(current) {
+            sb.append(activeSymbol)
+        }
+
+        val lost = max - current
+        if (lost > 0) {
+            repeat(lost) {
+                sb.append(lostSymbol)
+            }
+        }
+
+        return sb.toString()
     }
 }

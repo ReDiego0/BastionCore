@@ -31,3 +31,5 @@ instances:
 
 gameplay:
   default_lives: 3
+  life_symbol_active: "&c❤"
+  life_symbol_lost: "&8☠"
