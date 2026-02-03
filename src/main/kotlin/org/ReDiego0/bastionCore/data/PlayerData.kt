@@ -6,18 +6,16 @@ import org.ReDiego0.bastionCore.utils.RankUtils
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 
-data class PlayerData(
-    val uuid: UUID,
-    val name: String,
-    var currentRole: Role = Role.RECLUTA,
-    var ultimateCharge: Double = 0.0,
-    var hunterRank: Int = 1,
-    var guildPoints: Int = 0,
-    var reputationProgress: Float = 0.0f,
+data class PlayerData(val uuid: UUID, val name: String) {
+    var currentRole: Role = Role.RECLUTA
+    var ultimateCharge: Double = 0.0
+    var hunterRank: Int = 1
+    var guildPoints: Int = 0
+    var reputationProgress: Float = 0.0f
     var lastStaminaUsage: Long = System.currentTimeMillis()
-) {
+
 
     fun addCharge(player: Player, amount: Double): Boolean {
         val wasFull = ultimateCharge >= 100.0

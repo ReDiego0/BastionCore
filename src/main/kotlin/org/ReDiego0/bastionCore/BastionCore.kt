@@ -86,6 +86,9 @@ class BastionCore : JavaPlugin() {
 
     override fun onDisable() {
         instanceManager.cleanupAll()
+        if (::playerDataManager.isInitialized) {
+            playerDataManager.shutdown()
+        }
         logger.info("§c[BastionCore] Cerrando conexión con el servidor central...")
     }
 

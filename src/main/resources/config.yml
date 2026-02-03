@@ -1,5 +1,12 @@
 citadel_world: "Bastion"
 
+storage:
+  # Opciones: "YAML" (Archivos locales) o "SQLITE" (Base de datos local)
+  type: "YAML"
+
+  # Frecuencia de auto-guardado en minutos (0 para desactivar)
+  autosave_interval: 10
+
 stamina:
   # Frecuencia de consumo (en Ticks). 20 ticks = 1 segundo.
   # Cuanto MAYOR el número, MÁS LENTO baja la barra.

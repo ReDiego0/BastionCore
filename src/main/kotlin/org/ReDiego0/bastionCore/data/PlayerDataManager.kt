@@ -1,36 +1,71 @@
 package org.ReDiego0.bastionCore.data
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.storage.DataStorage
+import org.ReDiego0.bastionCore.storage.SqliteStorage
+import org.ReDiego0.bastionCore.storage.YamlStorage
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class PlayerDataManager(private val plugin: BastionCore) : Listener {
 
     private val dataMap = ConcurrentHashMap<UUID, PlayerData>()
+    private lateinit var storage: DataStorage
+
+    init {
+        val type = plugin.config.getString("storage.type", "YAML")?.uppercase()
+        storage = if (type == "SQLITE") {
+            SqliteStorage(plugin)
+        } else {
+            YamlStorage(plugin)
+        }
+
+        storage.init()
+        startAutoSave()
+    }
 
     fun getData(uuid: UUID): PlayerData? {
         return dataMap[uuid]
     }
 
+    fun shutdown() {
+        plugin.logger.info("Guardando datos de jugadores...")
+        for (data in dataMap.values) {
+            storage.savePlayer(data)
+        }
+        storage.close()
+    }
+
+    @EventHandler
+    fun onPreLogin(event: AsyncPlayerPreLoginEvent) {
+        val uuid = event.uniqueId
+        val name = event.name
+
+        try {
+            val data = storage.loadPlayer(uuid, name)
+            dataMap[uuid] = data
+        } catch (e: Exception) {
+            plugin.logger.severe("Error cargando datos para $name: ${e.message}")
+        }
+    }
+
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
-        val player = event.player
-
-        val data = PlayerData(player.uniqueId, player.name)
-        dataMap[player.uniqueId] = data
-        player.foodLevel = 20
-        player.saturation = 0f
-
-        updateFlightPermission(player)
-        updateWorldContext(event.player)
-        data.syncVanillaExp()
+        val data = getData(event.player.uniqueId)
+        if (data != null) {
+            if (event.player.world.name == plugin.citadelWorldName) {
+                data.syncVanillaExp()
+            }
+        }
     }
 
     @EventHandler
@@ -41,7 +76,14 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
-        dataMap.remove(event.player.uniqueId)
+        val uuid = event.player.uniqueId
+        val data = dataMap.remove(uuid)
+
+        if (data != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+                storage.savePlayer(data)
+            })
+        }
     }
 
     private fun updateFlightPermission(player: org.bukkit.entity.Player) {
@@ -66,5 +108,20 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
             player.level = data.ultimateCharge.toInt()
             player.exp = (data.ultimateCharge / 100.0).toFloat()
         }
+    }
+
+    private fun startAutoSave() {
+        val interval = plugin.config.getLong("storage.autosave_interval", 10)
+        if (interval <= 0) return
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
+            val count = dataMap.size
+            if (count > 0) {
+                for (data in dataMap.values) {
+                    storage.savePlayer(data)
+                }
+                plugin.logger.info("Auto-guardado completado para $count jugadores.") // (Debug)
+            }
+        }, interval * 1200L, interval * 1200L)
     }
 }
