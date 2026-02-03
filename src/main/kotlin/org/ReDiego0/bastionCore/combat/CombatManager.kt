@@ -71,8 +71,7 @@ class CombatManager(private val plugin: BastionCore) {
         player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
         player.sendMessage("§b[CLASE] §f¡Habilidad Definitiva Activada!")
 
-        // plugin.roleManager.activateUltimate(player)
-
+        plugin.roleManager.activateUltimate(player, data.currentRole)
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.CLASS_ULTIMATE, 30.0)
     }
 

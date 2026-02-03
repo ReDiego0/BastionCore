@@ -22,6 +22,9 @@ commands:
     description: Abrir tablón de misiones
     usage: /tabon
     permission: bastion.admin
+  clase:
+    description: Cambiar de clase
+    permission: bastion.player
 
 permissions:
   bastion.admin:
