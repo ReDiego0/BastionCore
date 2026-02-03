@@ -148,6 +148,7 @@ class GameManager(private val plugin: BastionCore) {
 
     fun addProgress(worldName: String, amount: Int = 1) {
         val mission = activeGames[worldName] ?: return
+        if (mission.isEnded) return
 
         mission.currentProgress += amount
 
@@ -178,6 +179,10 @@ class GameManager(private val plugin: BastionCore) {
 
     fun handleVictory(worldName: String) {
         val mission = activeGames[worldName] ?: return
+        if (mission.isEnded) return
+
+        mission.isEnded = true
+
         val player = Bukkit.getPlayer(mission.leaderId)
 
         bossBars[worldName]?.removeAll()

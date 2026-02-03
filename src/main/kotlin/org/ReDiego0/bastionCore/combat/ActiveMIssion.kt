@@ -20,5 +20,7 @@ data class ActiveMission(
     var timeElapsed: Int = 0,
 
     val maxLives: Int,
-    var currentLives: Int
+    var currentLives: Int,
+
+    var isEnded: Boolean = false
 )
