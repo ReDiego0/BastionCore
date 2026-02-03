@@ -25,20 +25,31 @@ object CompassUtils {
     }
 
     fun getSkyrimCompass(player: Player, target: Location): String {
-        val rotation = (player.location.yaw - 180) % 360
-        val targetVector = target.toVector().subtract(player.location.toVector())
-        val targetAngle = (Math.toDegrees(Math.atan2(targetVector.z, targetVector.x)) - 90) % 360
-        var diff = (targetAngle - rotation)
-        while (diff < -180) diff += 360
-        while (diff > 180) diff -= 360
+        val playerYaw = normalizeYaw(player.location.yaw)
+        val dirToTarget = target.toVector().subtract(player.location.toVector()).normalize()
+        val lookLoc = player.location.clone()
+        lookLoc.direction = dirToTarget
+        val targetYaw = normalizeYaw(lookLoc.yaw)
+
+        var diff = targetYaw - playerYaw
+        if (diff < -180) diff += 360
+        if (diff > 180) diff -= 360
 
         val distance = player.location.distance(target).toInt()
         return when {
-            diff in -10.0..10.0 -> "§8--§a[§c▼§a]§8-- §f${distance}m"
-            diff in -45.0..-10.0 -> "§8---§e»§8-- §f${distance}m"
-            diff in 10.0..45.0 -> "§f${distance}m §8--§e«§8---"
-            else -> "§7Buscando señal..."
+            diff in -15.0..15.0 -> "§8--§a[ §c▼ §a]§8-- §f${distance}m"
+            diff in -45.0..-15.0 -> "§8---§e«§8--- §f${distance}m"
+            diff in 15.0..45.0 -> "§8---§e»§8--- §f${distance}m"
+            diff in -135.0..-45.0 -> "§e«« §7Izquierda §f${distance}m"
+            diff in 45.0..135.0 -> "§f${distance}m §7Derecha §e»»"
+            else -> "§c⬇ §7Detrás §c⬇ §f${distance}m"
         }
+    }
+
+    private fun normalizeYaw(yaw: Float): Float {
+        var newYaw = yaw % 360
+        if (newYaw < 0) newYaw += 360
+        return newYaw
     }
 
     private fun getAngle(v1: Vector, v2: Vector): Double {
