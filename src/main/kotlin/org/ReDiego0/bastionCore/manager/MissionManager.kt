@@ -9,7 +9,7 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import java.util.UUID
+import java.util.*
 
 class MissionManager(private val plugin: BastionCore) {
 
@@ -76,7 +76,6 @@ class MissionManager(private val plugin: BastionCore) {
             val teamMembers = ArrayList<UUID>()
 
             if (party != null && party.isLeader(player.uniqueId)) {
-                // Si es líder de Party, llevamos a todos
                 for (memberId in party.members) {
                     val member = Bukkit.getPlayer(memberId)
                     if (member != null && member.world.name == plugin.citadelWorldName) {

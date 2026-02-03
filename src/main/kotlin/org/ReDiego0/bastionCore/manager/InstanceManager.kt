@@ -5,9 +5,8 @@ import org.ReDiego0.bastionCore.utils.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.WorldCreator
-import org.bukkit.entity.Player
 import java.io.File
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class InstanceManager(private val plugin: BastionCore) {
@@ -55,11 +54,25 @@ class InstanceManager(private val plugin: BastionCore) {
         Bukkit.unloadWorld(world, false)
         activeInstances.remove(worldName)
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-            val dir = File(Bukkit.getWorldContainer(), worldName)
-            FileUtils.deleteDirectory(dir)
-            plugin.logger.info("Instancia borrada: $worldName")
-        })
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            if (Bukkit.unloadWorld(world, false)) {
+                plugin.logger.info("Mundo descargado correctamente: $worldName")
+                activeInstances.remove(worldName)
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+                    val dir = File(Bukkit.getWorldContainer(), worldName)
+                    if (FileUtils.deleteDirectory(dir)) {
+                        plugin.logger.info("Archivos borrados: $worldName")
+                    } else {
+                        plugin.logger.warning("No se pudo borrar la carpeta: $worldName (¿Bloqueada por el sistema?)")
+                    }
+                })
+            } else {
+                plugin.logger.severe("FALLO al borrar mundo: $worldName. (¿Jugadores atrapados?)")
+                for (chunk in world.loadedChunks) {
+                    chunk.unload(false)
+                }
+            }
+        }, 40L)
     }
 
     fun cleanupAll() {

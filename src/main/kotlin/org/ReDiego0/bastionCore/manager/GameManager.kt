@@ -10,6 +10,7 @@ import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
 
@@ -18,6 +19,7 @@ class GameManager(private val plugin: BastionCore) {
     private val activeGames = ConcurrentHashMap<String, ActiveMission>()
     private val bossBars = ConcurrentHashMap<String, org.bukkit.boss.BossBar>()
     private var gameLoopTask: BukkitRunnable? = null
+    private val deathCooldowns = ConcurrentHashMap<UUID, Long>()
 
     init {
         startGameLoop()
@@ -52,12 +54,18 @@ class GameManager(private val plugin: BastionCore) {
     }
 
     fun handlePlayerFaint(player: Player, mission: ActiveMission) {
-        mission.currentLives--
+        if (mission.isEnded) return
 
+        val lastDeath = deathCooldowns.getOrDefault(player.uniqueId, 0L)
+        if (System.currentTimeMillis() - lastDeath < 2000) return
+        deathCooldowns[player.uniqueId] = System.currentTimeMillis()
+
+        mission.currentLives--
         val livesLeft = mission.currentLives
+
         broadcastToWorld(mission.worldName, "§c⚠ ${player.name} ha caído. Vidas restantes: $livesLeft/${mission.maxLives}")
 
-        if (livesLeft <= 0) {
+        if (livesLeft < 0) {
             handleDefeat(mission.worldName, "Vidas Agotadas")
         } else {
             val world = Bukkit.getWorld(mission.worldName)
@@ -68,12 +76,17 @@ class GameManager(private val plugin: BastionCore) {
 
                 player.health = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
                 player.foodLevel = 20
+
+                player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
             }
         }
     }
 
     fun handleDefeat(worldName: String, reason: String) {
         val mission = activeGames[worldName] ?: return
+        if (mission.isEnded) return
+        mission.isEnded = true
+
         activeGames.remove(worldName)
         bossBars[worldName]?.removeAll()
         bossBars.remove(worldName)
@@ -93,7 +106,7 @@ class GameManager(private val plugin: BastionCore) {
             override fun run() {
                 plugin.instanceManager.unloadInstance(worldName)
             }
-        }.runTaskLater(plugin, 20L * 5)
+        }.runTaskLater(plugin, 100L)
     }
 
 
