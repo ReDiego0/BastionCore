@@ -33,7 +33,7 @@ class GameManager(private val plugin: BastionCore) {
                 }
             }
         }
-        gameLoopTask?.runTaskTimer(plugin, 20L, 20L) // Ejecutar cada 1 segundo (20 ticks)
+        gameLoopTask?.runTaskTimer(plugin, 20L, 20L)
     }
 
     private fun updateMissionTimer(mission: ActiveMission) {
@@ -41,10 +41,10 @@ class GameManager(private val plugin: BastionCore) {
 
         val timeLeft = mission.timeLimitSeconds - mission.timeElapsed
 
-        if (timeLeft == 300) { // 5 minutos
+        if (timeLeft == 300) {
             broadcastToWorld(mission.worldName, "§c[!] Quedan 5 minutos para el fallo de misión.")
         }
-        if (timeLeft == 60) { // 1 minuto
+        if (timeLeft == 60) {
             broadcastToWorld(mission.worldName, "§c[!] ¡Queda 1 minuto!")
         }
 
@@ -150,13 +150,20 @@ class GameManager(private val plugin: BastionCore) {
 
     private fun getSafeRandomLocation(center: Location, radius: Int): Location? {
         val world = center.world ?: return null
-        for (i in 0..10) {
+        for (i in 0..15) {
             val x = center.blockX + ThreadLocalRandom.current().nextInt(-radius, radius)
             val z = center.blockZ + ThreadLocalRandom.current().nextInt(-radius, radius)
+
             val y = world.getHighestBlockYAt(x, z)
-            return Location(world, x.toDouble() + 0.5, y.toDouble() + 1, z.toDouble() + 0.5)
+
+            val block = world.getBlockAt(x, y, z)
+            val blockAbove = world.getBlockAt(x, y + 1, z)
+
+            if (!block.isLiquid && !blockAbove.isLiquid) {
+                return Location(world, x.toDouble() + 0.5, y.toDouble() + 1.0, z.toDouble() + 0.5)
+            }
         }
-        return null
+        return center.clone().add(0.0, 1.0, 0.0)
     }
 
     fun addProgress(worldName: String, amount: Int = 1) {

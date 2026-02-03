@@ -21,8 +21,8 @@ class WorldGuardManager {
 
         globalRegion.setFlag(Flags.PVP, StateFlag.State.DENY)
         globalRegion.setFlag(Flags.FALL_DAMAGE, StateFlag.State.DENY)
-        globalRegion.setFlag(Flags.MOB_SPAWNING, StateFlag.State.DENY)
         globalRegion.setFlag(Flags.BLOCK_PLACE, StateFlag.State.DENY)
+        globalRegion.setFlag(Flags.INTERACT, StateFlag.State.ALLOW)
 
         globalRegion.setFlag(Flags.CREEPER_EXPLOSION, StateFlag.State.DENY)
         globalRegion.setFlag(Flags.FIRE_SPREAD, StateFlag.State.DENY)
