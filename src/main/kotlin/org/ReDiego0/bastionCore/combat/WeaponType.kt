@@ -1,17 +1,24 @@
 package org.ReDiego0.bastionCore.combat
 
-enum class WeaponType(val displayName: String) {
-    NONE("Desarmado"),
+enum class WeaponType(val displayName: String, val id: String) {
+    NONE("Desarmado", "none"),
 
     // Pesadas
-    GREATSWORD("Gran Espada"),
-    HAMMER("Martillo de Guerra"),
+    GREATSWORD("Gran Espada", "greatsword"),
+    HAMMER("Martillo", "hammer"),
 
-    // Ligeras / Técnicas
-    KATANA("Espada Larga"),
-    DUAL_BLADES("Dagas Duales"),
+    // Ligeras
+    KATANA("Katana", "katana"),
+    DUAL_BLADES("Dagas Duales", "dual_blades"),
 
-    // Rango / Asta
-    SPEAR("Lanza"),
-    BOW("Arco Pesado");
+    // Rango
+    SPEAR("Lanza", "spear"),
+    BOW("Arco Pesado", "bow");
+
+    companion object {
+        // detectar el arma según NBT
+        fun fromId(id: String): WeaponType {
+            return entries.find { it.id.equals(id, ignoreCase = true) } ?: NONE
+        }
+    }
 }

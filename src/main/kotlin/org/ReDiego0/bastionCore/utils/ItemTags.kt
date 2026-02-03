@@ -12,7 +12,6 @@ object ItemTags {
 
     fun setWeaponType(item: ItemStack, type: WeaponType): ItemStack {
         if (!item.hasItemMeta()) return item
-
         val meta = item.itemMeta
         meta.persistentDataContainer.set(WEAPON_KEY, PersistentDataType.STRING, type.name)
         item.itemMeta = meta
@@ -22,14 +21,33 @@ object ItemTags {
     fun getWeaponType(item: ItemStack?): WeaponType {
         if (item == null || !item.hasItemMeta()) return WeaponType.NONE
 
-        val container = item.itemMeta.persistentDataContainer
-        if (!container.has(WEAPON_KEY, PersistentDataType.STRING)) return WeaponType.NONE
+        val meta = item.itemMeta
+        val pdc = meta.persistentDataContainer
 
-        val typeName = container.get(WEAPON_KEY, PersistentDataType.STRING)
-        return try {
-            WeaponType.valueOf(typeName!!)
-        } catch (e: IllegalArgumentException) {
-            WeaponType.NONE
+        if (pdc.has(WEAPON_KEY, PersistentDataType.STRING)) {
+            val typeStr = pdc.get(WEAPON_KEY, PersistentDataType.STRING)
+            return try {
+                WeaponType.valueOf(typeStr!!)
+            } catch (e: IllegalArgumentException) {
+                WeaponType.NONE
+            }
+        }
+
+        val name = item.itemMeta.displayName.lowercase()
+
+        return when {
+            name.contains("gran espada") -> WeaponType.GREATSWORD
+            name.contains("lanza") -> WeaponType.SPEAR
+            name.contains("martillo") -> WeaponType.HAMMER
+            name.contains("katana") -> WeaponType.KATANA
+            name.contains("dagas") -> WeaponType.DUAL_BLADES
+            name.contains("arco") -> WeaponType.BOW
+
+            item.type.name.contains("NETHERITE_SWORD") -> WeaponType.GREATSWORD
+            item.type.name.contains("TRIDENT") -> WeaponType.SPEAR
+            item.type.name.contains("IRON_AXE") -> WeaponType.HAMMER
+
+            else -> WeaponType.NONE
         }
     }
 }

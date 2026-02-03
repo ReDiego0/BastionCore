@@ -1,82 +1,104 @@
 package org.ReDiego0.bastionCore.combat
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.combat.weapons.*
 import org.ReDiego0.bastionCore.manager.CooldownManager
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 class CombatManager(private val plugin: BastionCore) {
-    private val cooldowns = plugin.cooldownManager
+
+    val greatswordHandler = GreatswordHandler(plugin)
+    val spearHandler = SpearHandler(plugin)
+    val hammerHandler = HammerHandler(plugin)
+    val katanaHandler = KatanaHandler(plugin)
+    val dualBladesHandler = DualBladesHandler(plugin)
+    val bowHandler = BowHandler(plugin)
+
+    private val blockingPlayers = ConcurrentHashMap<UUID, Long>()
+    private val parryPlayers = ConcurrentHashMap<UUID, Long>()
 
     fun handleRightClick(player: Player, weaponType: WeaponType) {
-        if (cooldowns.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_SECONDARY)) return
+        if (plugin.cooldownManager.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_SECONDARY)) return
+
         when (weaponType) {
-            WeaponType.KATANA -> {
-                player.sendMessage("§e[Katana] §fPostura de Desvío iniciada.")
-                player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 1f, 2f)
-
-                cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_SECONDARY, 5.0)
-            }
-            WeaponType.GREATSWORD -> {
-                player.sendMessage("§6[Gran Espada] §fBloqueo pesado activo.")
-                player.playSound(player.location, Sound.ITEM_SHIELD_BLOCK, 1f, 0.5f)
-
-                cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_SECONDARY, 2.0)
-            }
-            else -> {
-                player.sendMessage("§7Esta arma no tiene técnica defensiva aún.")
-            }
+            WeaponType.GREATSWORD -> greatswordHandler.handleRightClick(player)
+            WeaponType.SPEAR -> spearHandler.handleRightClick(player)
+            WeaponType.HAMMER -> hammerHandler.handleRightClick(player)
+            WeaponType.KATANA -> katanaHandler.handleRightClick(player)
+            WeaponType.DUAL_BLADES -> dualBladesHandler.handleRightClick(player)
+            WeaponType.BOW -> bowHandler.handleRightClick(player)
+            else -> {}
         }
     }
 
-    fun handleWeaponSkill(player: Player, weaponType: WeaponType) {
-        if (cooldowns.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_PRIMARY)) return
+    fun handleWeaponPrimary(player: Player, weaponType: WeaponType) {
+        if (plugin.cooldownManager.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_PRIMARY)) return
 
-        if (player.foodLevel < 4) {
-            player.sendMessage("§c¡Demasiado exhausto para usar habilidades!")
+        if (player.foodLevel < 2) {
+            player.sendMessage("§c¡Estás exhausto!")
             player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
             return
         }
 
         when (weaponType) {
-            WeaponType.KATANA -> {
-                player.sendMessage("§e[Katana] §f¡Corte Relámpago!")
-                player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1.5f)
-
-                org.ReDiego0.bastionCore.listener.StaminaListener.changeStamina(player, -4)
-                cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 8.0)
-            }
-            WeaponType.GREATSWORD -> {
-                player.sendMessage("§6[Gran Espada] §f¡Carga Sísmica!")
-                player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 0.5f)
-
-                org.ReDiego0.bastionCore.listener.StaminaListener.changeStamina(player, -6)
-                cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
-            }
-            else -> {
-                player.sendMessage("§7Habilidad no implementada.")
-            }
+            WeaponType.GREATSWORD -> greatswordHandler.handlePrimary(player)
+            WeaponType.SPEAR -> spearHandler.handlePrimary(player)
+            WeaponType.HAMMER -> hammerHandler.handlePrimary(player)
+            WeaponType.KATANA -> katanaHandler.handlePrimary(player)
+            WeaponType.DUAL_BLADES -> dualBladesHandler.handlePrimary(player)
+            WeaponType.BOW -> bowHandler.handlePrimary(player)
+            else -> {}
         }
     }
 
     fun handleClassUltimate(player: Player) {
-        if (cooldowns.checkAndNotify(player, CooldownManager.CooldownType.CLASS_ULTIMATE)) return
+        if (plugin.cooldownManager.checkAndNotify(player, CooldownManager.CooldownType.CLASS_ULTIMATE)) return
+
         val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
 
         if (data.ultimateCharge < 100.0) {
-            player.sendMessage("§cLa Ultimate no está lista (${data.ultimateCharge.toInt()}%)")
+            player.sendMessage("§cHabilidad de Clase no lista (${data.ultimateCharge.toInt()}%)")
             player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
             return
         }
 
-        val role = data.currentRole
+        data.ultimateCharge = 0.0
+        data.syncVanillaExp()
+
         player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
-        player.sendMessage("§b[CLASE] §f¡Habilidad Definitiva de ${role.displayName}!")
+        player.sendMessage("§b[CLASE] §f¡Habilidad Definitiva Activada!")
 
-        // Aquí irían los efectos reales (Curar, Daño masivo, Inmortalidad...)
+        // plugin.roleManager.activateUltimate(player)
 
-        data.resetCharge(player)
-
-        cooldowns.setCooldown(player.uniqueId, CooldownManager.CooldownType.CLASS_ULTIMATE, 5.0)
+        plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.CLASS_ULTIMATE, 30.0)
     }
+
+    fun setBlocking(uuid: UUID, ticks: Long) {
+        blockingPlayers[uuid] = System.currentTimeMillis() + (ticks * 50)
+    }
+    fun isBlocking(uuid: UUID): Boolean {
+        val time = blockingPlayers[uuid] ?: return false
+        if (System.currentTimeMillis() > time) {
+            blockingPlayers.remove(uuid)
+            return false
+        }
+        return true
+    }
+    fun removeBlocking(uuid: UUID) { blockingPlayers.remove(uuid) }
+
+    fun setParry(uuid: UUID, ticks: Long) {
+        parryPlayers[uuid] = System.currentTimeMillis() + (ticks * 50)
+    }
+    fun isParrying(uuid: UUID): Boolean {
+        val time = parryPlayers[uuid] ?: return false
+        if (System.currentTimeMillis() > time) {
+            parryPlayers.remove(uuid)
+            return false
+        }
+        return true
+    }
+    fun removeParry(uuid: UUID) { parryPlayers.remove(uuid) }
 }

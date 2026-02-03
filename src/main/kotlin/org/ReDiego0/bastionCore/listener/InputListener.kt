@@ -20,13 +20,15 @@ class InputListener(
 
     @EventHandler
     fun onRightClick(event: PlayerInteractEvent) {
+        val player = event.player
+        if (!player.world.name.startsWith("inst_")) return
+
         if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
         if (event.hand != EquipmentSlot.HAND) return
 
-        val player = event.player
         val item = player.inventory.itemInMainHand
-
         val weaponType = ItemTags.getWeaponType(item)
+
         if (weaponType == WeaponType.NONE) return
 
         combatManager.handleRightClick(player, weaponType)
@@ -34,14 +36,16 @@ class InputListener(
 
     @EventHandler
     fun onDrop(event: PlayerDropItemEvent) {
-        val itemDrop = event.itemDrop
-        val itemStack = itemDrop.itemStack
+        val player = event.player
+        if (!player.world.name.startsWith("inst_")) return // Solo instancias
 
+        val itemStack = event.itemDrop.itemStack
         val weaponType = ItemTags.getWeaponType(itemStack)
+
         if (weaponType == WeaponType.NONE) return
 
         event.isCancelled = true
-        combatManager.handleWeaponSkill(event.player, weaponType)
+        combatManager.handleWeaponUltimate(player, weaponType)
     }
 
     @EventHandler
@@ -53,10 +57,11 @@ class InputListener(
 
         if (isAtCitadel) {
             player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-            player.sendMessage("§a[Bastión] §fAbriendo menú principal... (Próximamente)")
-
+            player.performCommand("menu")
         } else {
-            combatManager.handleClassUltimate(player)
+            if (player.world.name.startsWith("inst_")) {
+                combatManager.handleClassUltimate(player)
+            }
         }
     }
 }
