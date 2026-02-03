@@ -24,43 +24,59 @@ class KatanaHandler(private val plugin: BastionCore) {
     fun handlePrimary(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
 
-        player.playSound(player.location, Sound.ITEM_ARMOR_EQUIP_NETHERITE, 1f, 0.5f)
-        player.world.spawnParticle(Particle.CRIT, player.location, 10, 0.5, 1.0, 0.5) // Aura cargando
+        player.playSound(player.location, Sound.BLOCK_IRON_DOOR_OPEN, 1f, 2f)
+        player.world.spawnParticle(Particle.CRIT, player.location, 10, 0.5, 1.0, 0.5)
+
+        val startLoc = player.location.clone()
 
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             if (!player.isOnline) return@Runnable
 
-            val startLoc = player.location.clone()
-            val direction = startLoc.direction.normalize()
-            val distance = 8.0
+            val dir = startLoc.direction.clone().setY(0.0).normalize()
 
-            val dest = startLoc.clone().add(direction.clone().multiply(distance))
-            if (!dest.block.type.isSolid) player.teleport(dest)
+            var safeDest = startLoc.clone()
+            var traveledDistance = 0.0
+
+            for (i in 1..8) {
+                val checkLoc = startLoc.clone().add(dir.clone().multiply(i.toDouble()))
+
+                if (checkLoc.block.type.isSolid || checkLoc.clone().add(0.0, 1.0, 0.0).block.type.isSolid) {
+                    break
+                }
+                safeDest = checkLoc
+                traveledDistance = i.toDouble()
+            }
+
+            safeDest.yaw = player.location.yaw
+            safeDest.pitch = player.location.pitch
+            player.teleport(safeDest)
+
             player.playSound(player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.5f)
 
             val points = 20
-            val step = direction.clone().multiply(distance / points)
+            val stepVec = dir.clone().multiply(traveledDistance / points)
             val drawLoc = startLoc.clone().add(0.0, 1.0, 0.0)
 
+            val dust = Particle.DustOptions(Color.AQUA, 1.0f)
+
             for (i in 0..points) {
-                val dust = Particle.DustOptions(Color.AQUA, 1.0f)
                 player.world.spawnParticle(Particle.DUST, drawLoc, 1, 0.0, 0.0, 0.0, 0.0, dust)
-                drawLoc.add(step)
+                drawLoc.add(stepVec)
             }
 
             plugin.server.scheduler.runTaskLater(plugin, Runnable {
                 player.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.5f)
-                player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.5f, 2f) // "Clang" metálico fuerte
+                player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.5f, 2f)
 
                 val burstLoc = startLoc.clone().add(0.0, 1.0, 0.0)
                 for (i in 0..points step 2) {
-                    player.world.spawnParticle(Particle.SWEEP_ATTACK, burstLoc, 1) // Cortes
-                    player.world.spawnParticle(Particle.FLASH, burstLoc, 1) // Destello
-                    burstLoc.add(step.clone().multiply(2))
+                    player.world.spawnParticle(Particle.SWEEP_ATTACK, burstLoc, 1)
+                    player.world.spawnParticle(Particle.FLASH, burstLoc, 1)
+                    burstLoc.add(stepVec.clone().multiply(2))
                 }
 
-                val center = startLoc.clone().add(direction.clone().multiply(distance / 2))
-                for (e in player.world.getNearbyEntities(center, distance/2 + 2, 3.0, distance/2 + 2)) {
+                val center = startLoc.clone().add(dir.clone().multiply(traveledDistance / 2))
+                for (e in player.world.getNearbyEntities(center, (traveledDistance/2) + 1.5, 3.0, (traveledDistance/2) + 1.5)) {
                     if (e is LivingEntity && e != player) {
                         e.noDamageTicks = 0
                         e.damage(35.0, player)
