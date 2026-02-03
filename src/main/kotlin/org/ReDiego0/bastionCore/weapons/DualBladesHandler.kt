@@ -3,7 +3,6 @@ package org.ReDiego0.bastionCore.combat.weapons
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
 import org.bukkit.Color
-import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -54,7 +53,9 @@ class DualBladesHandler(private val plugin: BastionCore) {
                 val red = Particle.DustOptions(Color.RED, 1f)
                 val black = Particle.DustOptions(Color.BLACK, 1f)
 
-                player.world.spawnParticle(Particle.DUST, loc, 1, 0.0, 0.0, 0.0, 0.0, if(count%2==0) red else black)
+                val chosenColor = if(count % 2 == 0) red else black
+                player.world.spawnParticle(Particle.DUST, loc, 1, 0.0, 0.0, 0.0, 0.0, chosenColor)
+
                 player.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f)
 
                 val front = anchorLoc.clone().add(anchorLoc.direction.multiply(2.0))
@@ -62,7 +63,6 @@ class DualBladesHandler(private val plugin: BastionCore) {
                     if (e is LivingEntity && e != player) {
                         e.noDamageTicks = 0
                         e.damage(3.0, player)
-                        player.world.spawnParticle(Particle.BLOCK, e.location.add(0.0,1.0,0.0), 5, 0.2, 0.2, 0.2, Material.REDSTONE_BLOCK.createBlockData())
                     }
                 }
             }

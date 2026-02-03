@@ -33,13 +33,11 @@ class KatanaHandler(private val plugin: BastionCore) {
             if (!player.isOnline) return@Runnable
 
             val dir = startLoc.direction.clone().setY(0.0).normalize()
-
             var safeDest = startLoc.clone()
             var traveledDistance = 0.0
 
             for (i in 1..8) {
                 val checkLoc = startLoc.clone().add(dir.clone().multiply(i.toDouble()))
-
                 if (checkLoc.block.type.isSolid || checkLoc.clone().add(0.0, 1.0, 0.0).block.type.isSolid) {
                     break
                 }
@@ -50,7 +48,6 @@ class KatanaHandler(private val plugin: BastionCore) {
             safeDest.yaw = player.location.yaw
             safeDest.pitch = player.location.pitch
             player.teleport(safeDest)
-
             player.playSound(player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.5f)
 
             val points = 20
@@ -80,7 +77,6 @@ class KatanaHandler(private val plugin: BastionCore) {
                     if (e is LivingEntity && e != player) {
                         e.noDamageTicks = 0
                         e.damage(35.0, player)
-                        player.world.spawnParticle(Particle.BLOCK, e.location.add(0.0,1.0,0.0), 15, 0.2, 0.2, 0.2, org.bukkit.Material.REDSTONE_BLOCK.createBlockData())
                     }
                 }
             }, 5L)
