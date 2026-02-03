@@ -30,13 +30,14 @@ class InstanceManager(private val plugin: BastionCore) {
 
         val creator = WorldCreator(instanceName)
         val world = Bukkit.createWorld(creator)
-        world?.isAutoSave = false
 
         if (world != null) {
             world.isAutoSave = false
+
             world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, false)
             world.setGameRule(org.bukkit.GameRule.DO_DAYLIGHT_CYCLE, false)
             world.time = 6000
+
             activeInstances[instanceName] = UUID.randomUUID()
             plugin.worldGuardManager.applyInstanceRules(world)
         }
@@ -44,9 +45,13 @@ class InstanceManager(private val plugin: BastionCore) {
         return world
     }
 
-
     fun unloadInstance(worldName: String) {
-        val world = Bukkit.getWorld(worldName) ?: return
+        val world = Bukkit.getWorld(worldName)
+        if (world == null) {
+            activeInstances.remove(worldName)
+            deleteWorldFiles(worldName)
+            return
+        }
 
         val citadel = Bukkit.getWorld(plugin.citadelWorldName) ?: Bukkit.getWorlds()[0]
         for (player in world.players) {
@@ -54,28 +59,55 @@ class InstanceManager(private val plugin: BastionCore) {
             player.sendMessage("§e[Misión] §fInstancia cerrada. Regresando a base.")
         }
 
-        Bukkit.unloadWorld(world, false)
+        for (entity in world.entities) {
+            if (entity !is org.bukkit.entity.Player) {
+                entity.remove()
+            }
+        }
+
         activeInstances.remove(worldName)
 
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-            if (Bukkit.unloadWorld(world, false)) {
-                plugin.logger.info("Mundo descargado correctamente: $worldName")
-                activeInstances.remove(worldName)
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-                    val dir = File(Bukkit.getWorldContainer(), worldName)
-                    if (FileUtils.deleteDirectory(dir)) {
-                        plugin.logger.info("Archivos borrados: $worldName")
-                    } else {
-                        plugin.logger.warning("No se pudo borrar la carpeta: $worldName (¿Bloqueada por el sistema?)")
-                    }
-                })
+            attemptUnload(worldName, 1)
+        }, 60L)
+    }
+
+    private fun attemptUnload(worldName: String, attempt: Int) {
+        val world = Bukkit.getWorld(worldName)
+
+        if (world == null) {
+            deleteWorldFiles(worldName)
+            return
+        }
+
+        if (Bukkit.unloadWorld(world, false)) {
+            plugin.logger.info("Mundo descargado con éxito ($worldName). Eliminando archivos...")
+            deleteWorldFiles(worldName)
+        } else {
+            if (attempt < 3) {
+                plugin.logger.warning("Fallo al descargar $worldName (Intento $attempt/3). Reintentando en 5s...")
+                Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                    attemptUnload(worldName, attempt + 1)
+                }, 100L)
             } else {
-                plugin.logger.severe("FALLO al borrar mundo: $worldName. (¿Jugadores atrapados?)")
+                plugin.logger.severe("IMPOSIBLE descargar el mundo $worldName tras 3 intentos. Se quedará cargado hasta el reinicio.")
                 for (chunk in world.loadedChunks) {
                     chunk.unload(false)
                 }
             }
-        }, 40L)
+        }
+    }
+
+    private fun deleteWorldFiles(worldName: String) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+            val dir = File(Bukkit.getWorldContainer(), worldName)
+            if (!dir.exists()) return@Runnable
+            if (FileUtils.deleteDirectory(dir)) {
+                plugin.logger.info("Archivos de instancia eliminados: $worldName")
+            } else {
+                plugin.logger.warning("No se pudo borrar la carpeta $worldName inmediatamente (probablemente bloqueo de SO). Se borrará en el próximo reinicio o limpieza.")
+            }
+        })
     }
 
     fun cleanupAll() {
