@@ -27,26 +27,25 @@ class TrackingTask(private val plugin: BastionCore) : BukkitRunnable() {
             if (!worldName.startsWith("inst_")) continue
 
             val mission = plugin.gameManager.getMission(worldName) ?: continue
-
             var targetLoc: Location? = null
-            var targetName = "Objetivo"
 
             when (mission.type) {
                 MissionType.HUNT, MissionType.EXTERMINATION -> {
                     val nearest = findNearestMob(player, mission.targetId)
-                    if (nearest != null) {
-                        targetLoc = nearest.location
-                        targetName = if (mission.type == MissionType.HUNT) "Jefe" else "Enemigo"
-                    }
+                    if (nearest != null) targetLoc = nearest.location
                 }
 
                 MissionType.GATHER -> {
                     val droppedItem = findDroppedItem(player, mission.targetId)
-
                     if (droppedItem != null) {
                         targetLoc = droppedItem.location
-                        targetName = "Ítem"
                     } else {
+                        val cachedLoc = gatherCache[player.uniqueId.toString()]
+
+                        if (cachedLoc != null && cachedLoc.world != player.world) {
+                            gatherCache.remove(player.uniqueId.toString()) // Limpiar caché vieja
+                        }
+
                         if (tickCounter % 20 == 0) {
                             val nearestBlock = scanNearbyBlocks(player, mission.targetId, 25)
                             if (nearestBlock != null) {
@@ -56,12 +55,11 @@ class TrackingTask(private val plugin: BastionCore) : BukkitRunnable() {
                             }
                         }
                         targetLoc = gatherCache[player.uniqueId.toString()]
-                        targetName = "Recurso"
                     }
                 }
             }
 
-            if (targetLoc != null) {
+            if (targetLoc != null && targetLoc.world == player.world) {
                 val compass = CompassUtils.getSkyrimCompass(player, targetLoc)
                 sendActionBar(player, compass)
             } else {

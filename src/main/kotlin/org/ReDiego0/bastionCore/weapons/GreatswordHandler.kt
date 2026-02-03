@@ -20,7 +20,7 @@ class GreatswordHandler(private val plugin: BastionCore) {
         player.world.spawnParticle(Particle.CLOUD, player.location.add(0.0, 1.0, 0.0), 10, 0.5, 0.5, 0.5, 0.1)
         val dir = player.location.direction.normalize().multiply(1.5)
         player.velocity = Vector(dir.x, 0.2, dir.z)
-        player.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 20, 2))
+        player.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 60, 2))
     }
 
     fun handlePrimary(player: Player) {

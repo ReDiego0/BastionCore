@@ -26,18 +26,19 @@ class SpearHandler(private val plugin: BastionCore) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 10.0)
 
         player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
-        player.velocity = Vector(0.0, 2.5, 0.0) // Salto
+        player.velocity = Vector(0.0, 2.5, 0.0)
 
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
-            player.velocity = player.location.direction.multiply(3).setY(-2.0) // Picada
+            player.velocity = player.location.direction.multiply(3).setY(-2.0)
             player.fallDistance = 0f
             player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, player.location, 20)
 
             plugin.server.scheduler.runTaskLater(plugin, Runnable {
                 player.world.createExplosion(player.location, 0f)
-                for (e in player.world.getNearbyEntities(player.location, 4.0, 2.0, 4.0)) {
+                for (e in player.world.getNearbyEntities(player.location, 4.0, 3.0, 4.0)) {
                     if (e is LivingEntity && e != player) {
                         e.damage(25.0, player)
+                        e.velocity = e.location.toVector().subtract(player.location.toVector()).normalize().multiply(0.5).setY(0.5)
                     }
                 }
             }, 5L)

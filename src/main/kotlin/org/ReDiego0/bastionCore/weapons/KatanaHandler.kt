@@ -30,11 +30,10 @@ class KatanaHandler(private val plugin: BastionCore) {
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             player.velocity = Vector(0.0, -2.0, 0.0)
             player.world.spawnParticle(Particle.DUST, player.location.add(0.0, 1.0, 0.0), 20, 0.5, 1.5, 0.5,
-                org.bukkit.Particle.DustOptions(org.bukkit.Color.RED, 2f))
+                Particle.DustOptions(org.bukkit.Color.RED, 2f))
 
             player.playSound(player.location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 1f, 2f)
-
-            for (e in player.world.getNearbyEntities(player.location, 3.0, 4.0, 3.0)) {
+            for (e in player.world.getNearbyEntities(player.location, 5.0, 5.0, 5.0)) {
                 if (e is LivingEntity && e != player) {
                     e.damage(30.0, player)
                 }

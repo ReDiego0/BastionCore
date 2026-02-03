@@ -36,7 +36,7 @@ class BowHandler(private val plugin: BastionCore) {
         for (i in 0..40) {
             val point = start.clone().add(dir.clone().multiply(i.toDouble()))
             player.world.spawnParticle(Particle.DRAGON_BREATH, point, 1, 0.0, 0.0, 0.0, 0.0)
-            player.world.spawnParticle(Particle.DUST, point, 1, 0.1, 0.1, 0.1, 0.0, org.bukkit.Particle.DustOptions(org.bukkit.Color.MAROON, 1.5f))
+            player.world.spawnParticle(Particle.DUST, point, 1, 0.1, 0.1, 0.1, 0.0, Particle.DustOptions(org.bukkit.Color.MAROON, 1.5f))
 
             for (e in player.world.getNearbyEntities(point, 0.8, 0.8, 0.8)) {
                 if (e is LivingEntity && e != player) {
