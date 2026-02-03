@@ -4,10 +4,12 @@ import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.combat.ActiveMission
 import org.ReDiego0.bastionCore.combat.MissionType
 import org.ReDiego0.bastionCore.utils.ContractUtils
+import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import java.util.UUID
 
 class MissionManager(private val plugin: BastionCore) {
 
@@ -70,9 +72,26 @@ class MissionManager(private val plugin: BastionCore) {
         if (world != null) {
             item.amount = item.amount - 1
 
-            player.teleport(world.spawnLocation)
-            player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
-            player.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
+            val party = plugin.partyManager.getParty(player.uniqueId)
+            val teamMembers = ArrayList<UUID>()
+
+            if (party != null && party.isLeader(player.uniqueId)) {
+                // Si es líder de Party, llevamos a todos
+                for (memberId in party.members) {
+                    val member = Bukkit.getPlayer(memberId)
+                    if (member != null && member.world.name == plugin.citadelWorldName) {
+                        member.teleport(world.spawnLocation)
+                        member.playSound(member.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
+                        member.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
+                        teamMembers.add(memberId)
+                    }
+                }
+            } else {
+                player.teleport(world.spawnLocation)
+                player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
+                player.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
+                teamMembers.add(player.uniqueId)
+            }
 
             val activeMission = ActiveMission(
                 worldName = world.name,

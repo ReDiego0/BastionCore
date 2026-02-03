@@ -27,6 +27,7 @@ class BastionCore : JavaPlugin() {
     lateinit var missionManager: MissionManager
     lateinit var gameManager: GameManager
     lateinit var worldGuardManager: WorldGuardManager
+    lateinit var partyManager: PartyManager
 
     var economy: Economy? = null
 
@@ -47,6 +48,7 @@ class BastionCore : JavaPlugin() {
         boardCycleManager = BoardCycleManager(this)
         missionManager = MissionManager(this)
         gameManager = GameManager(this)
+        partyManager = PartyManager(this)
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -64,6 +66,7 @@ class BastionCore : JavaPlugin() {
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))
         getCommand("mision")?.setExecutor(org.ReDiego0.bastionCore.command.MissionCommand(this))
         getCommand("tablon")?.setExecutor(org.ReDiego0.bastionCore.command.BoardCommand(this))
+        getCommand("party")?.setExecutor(org.ReDiego0.bastionCore.command.PartyCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
         TrackingTask(this).runTaskTimer(this, 20L, 2L)
