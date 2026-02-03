@@ -14,5 +14,11 @@ data class ActiveMission(
     val rewardGold: Double,
     val threatLevel: Int,
 
-    val allowedBlocks: Set<String> = emptySet()
+    val allowedBlocks: Set<String> = emptySet(),
+
+    val timeLimitSeconds: Int,
+    var timeElapsed: Int = 0,
+
+    val maxLives: Int,
+    var currentLives: Int
 )

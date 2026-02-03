@@ -4,11 +4,27 @@ import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.combat.MissionType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 
 class GameListener(private val plugin: BastionCore) : Listener {
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onFatalDamage(event: EntityDamageEvent) {
+        if (event.entity !is Player) return
+        val player = event.entity as Player
+        if (!player.world.name.startsWith("inst_")) return
+        if (player.health - event.finalDamage <= 0) {
+            val mission = plugin.gameManager.getMission(player.world.name)
+            if (mission != null) {
+                event.isCancelled = true
+                plugin.gameManager.handlePlayerFaint(player, mission)
+            }
+        }
+    }
 
     @EventHandler
     fun onEntityDeath(event: EntityDeathEvent) {

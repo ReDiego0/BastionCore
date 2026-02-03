@@ -39,6 +39,27 @@ class BastionExpansion(private val plugin: BastionCore) : PlaceholderExpansion()
             val rank = data?.hunterRank ?: 1
             return RankUtils.getRequiredXp(rank).toString()
         }
+
+        val worldName = player.world.name
+        val activeMission = plugin.gameManager.getMission(worldName)
+
+        if (params.equals("mission_lives", ignoreCase = true)) {
+            return activeMission?.currentLives?.toString() ?: "-"
+        }
+
+        if (params.equals("mission_lives_max", ignoreCase = true)) {
+            return activeMission?.maxLives?.toString() ?: "-"
+        }
+
+        if (params.equals("mission_timer", ignoreCase = true)) {
+            if (activeMission == null) return "--:--"
+
+            val timeLeft = activeMission.timeLimitSeconds - activeMission.timeElapsed
+            val minutes = timeLeft / 60
+            val seconds = timeLeft % 60
+            return String.format("%02d:%02d", minutes, seconds)
+        }
+
         return null
     }
 }

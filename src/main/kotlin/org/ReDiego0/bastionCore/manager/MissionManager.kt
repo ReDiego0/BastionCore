@@ -30,10 +30,25 @@ class MissionManager(private val plugin: BastionCore) {
 
         val missionType = try { MissionType.valueOf(typeStr) } catch (e: Exception) { MissionType.HUNT }
 
+        var timeLimit = 1800
+        var lives = 3
+
+        val missionId = pdc.get(ContractUtils.MISSION_ID_KEY, PersistentDataType.STRING)
+
         val templateId = pdc.get(ContractUtils.DATA_TEMPLATE_ID_KEY, PersistentDataType.STRING)
         val allowedSet = HashSet<String>()
 
         val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
+
+        if (missionId != null) {
+            val config = ContractUtils.getConfig()
+            timeLimit = config.getInt("special.$missionId.time_limit", 1800)
+            lives = config.getInt("special.$missionId.lives", 3)
+        } else {
+            val config = ContractUtils.getConfig()
+            timeLimit = config.getInt("defaults.$typeStr.time_limit", 1800)
+            lives = config.getInt("defaults.$typeStr.lives", 3)
+        }
 
         if (templateId != null) {
             val list = ContractUtils.getConfig().getStringList("templates.$templateId.allowed_break")
@@ -67,7 +82,10 @@ class MissionManager(private val plugin: BastionCore) {
                 requiredAmount = amount,
                 rewardGold = reward,
                 threatLevel = threat,
-                allowedBlocks = allowedSet
+                allowedBlocks = allowedSet,
+                timeLimitSeconds = timeLimit,
+                maxLives = lives,
+                currentLives = lives
             )
 
             plugin.gameManager.startGame(activeMission, radius)

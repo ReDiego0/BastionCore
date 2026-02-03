@@ -4,6 +4,16 @@ settings:
   board_rotation_minutes: 5
   contract_expiration_minutes: 5
   missions_per_rotation: 15
+defaults:
+  HUNT:
+    time_limit: 180   # 30 Minutos (en segundos)
+    lives: 3
+  EXTERMINATION:
+    time_limit: 400
+    lives: 3
+  GATHER:
+    time_limit: 400
+    lives: 3
 
 templates:
 
@@ -98,6 +108,8 @@ special:
     world_template: "test"
     trigger_block: CARTOGRAPHY_TABLE
     type: STORY
+    time_limit: 3600
+    lives: 1
     requirements:
       min_rank: 1
     rewards:

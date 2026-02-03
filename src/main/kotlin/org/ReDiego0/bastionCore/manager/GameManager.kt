@@ -8,6 +8,7 @@ import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
+import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
@@ -16,6 +17,85 @@ class GameManager(private val plugin: BastionCore) {
 
     private val activeGames = ConcurrentHashMap<String, ActiveMission>()
     private val bossBars = ConcurrentHashMap<String, org.bukkit.boss.BossBar>()
+    private var gameLoopTask: BukkitRunnable? = null
+
+    init {
+        startGameLoop()
+    }
+
+    private fun startGameLoop() {
+        gameLoopTask = object : BukkitRunnable() {
+            override fun run() {
+                for (mission in activeGames.values) {
+                    updateMissionTimer(mission)
+                }
+            }
+        }
+        gameLoopTask?.runTaskTimer(plugin, 20L, 20L) // Ejecutar cada 1 segundo (20 ticks)
+    }
+
+    private fun updateMissionTimer(mission: ActiveMission) {
+        mission.timeElapsed++
+
+        val timeLeft = mission.timeLimitSeconds - mission.timeElapsed
+
+        if (timeLeft == 300) { // 5 minutos
+            broadcastToWorld(mission.worldName, "§c[!] Quedan 5 minutos para el fallo de misión.")
+        }
+        if (timeLeft == 60) { // 1 minuto
+            broadcastToWorld(mission.worldName, "§c[!] ¡Queda 1 minuto!")
+        }
+
+        if (timeLeft <= 0) {
+            handleDefeat(mission.worldName, "Tiempo Agotado")
+        }
+    }
+
+    fun handlePlayerFaint(player: Player, mission: ActiveMission) {
+        mission.currentLives--
+
+        val livesLeft = mission.currentLives
+        broadcastToWorld(mission.worldName, "§c⚠ ${player.name} ha caído. Vidas restantes: $livesLeft/${mission.maxLives}")
+
+        if (livesLeft <= 0) {
+            handleDefeat(mission.worldName, "Vidas Agotadas")
+        } else {
+            val world = Bukkit.getWorld(mission.worldName)
+            if (world != null) {
+                player.teleport(world.spawnLocation)
+                player.playSound(player.location, Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.5f)
+                player.sendTitle("§c¡Has caído!", "§7Regresando al campamento...", 5, 40, 10)
+
+                player.health = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
+                player.foodLevel = 20
+            }
+        }
+    }
+
+    fun handleDefeat(worldName: String, reason: String) {
+        val mission = activeGames[worldName] ?: return
+
+        bossBars[worldName]?.removeAll()
+        bossBars.remove(worldName)
+
+        broadcastToWorld(worldName, "§4█ MISIÓN FALLIDA █")
+        broadcastToWorld(worldName, "§cMotivo: $reason")
+
+        val world = Bukkit.getWorld(worldName) ?: return
+
+        for (player in world.players) {
+            player.sendTitle("§4MISIÓN FALLIDA", "§c$reason", 10, 100, 20)
+            player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+        }
+
+        object : BukkitRunnable() {
+            override fun run() {
+                plugin.instanceManager.unloadInstance(worldName)
+                activeGames.remove(worldName)
+            }
+        }.runTaskLater(plugin, 20L * 5)
+    }
+
 
     fun startGame(mission: ActiveMission, spawnRadius: Int) {
         activeGames[mission.worldName] = mission
@@ -81,6 +161,11 @@ class GameManager(private val plugin: BastionCore) {
         if (mission.currentProgress >= mission.requiredAmount) {
             handleVictory(worldName)
         }
+    }
+
+    private fun broadcastToWorld(worldName: String, message: String) {
+        val world = Bukkit.getWorld(worldName) ?: return
+        for (p in world.players) p.sendMessage(message)
     }
 
     private fun getBarTitle(mission: ActiveMission): String {
