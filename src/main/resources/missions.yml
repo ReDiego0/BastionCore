@@ -68,6 +68,12 @@ templates:
     mission_type: GATHER
     trigger_block: OAK_FENCE
     threat_level: 1
+    allowed_break:
+      - "OAK_LOG"
+      - "OAK_LEAVES"
+      - "RED_MUSHROOM"
+      - "WHEAT_SEEDS"
+      - "SHORT_GRASS"
 
     objectives:
       - id: "OAK_LOG"         # Misión: Traer Madera

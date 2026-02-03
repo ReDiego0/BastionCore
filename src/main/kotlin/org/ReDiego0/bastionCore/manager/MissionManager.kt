@@ -30,7 +30,15 @@ class MissionManager(private val plugin: BastionCore) {
 
         val missionType = try { MissionType.valueOf(typeStr) } catch (e: Exception) { MissionType.HUNT }
 
+        val templateId = pdc.get(ContractUtils.DATA_TEMPLATE_ID_KEY, PersistentDataType.STRING)
+        val allowedSet = HashSet<String>()
+
         val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
+
+        if (templateId != null) {
+            val list = ContractUtils.getConfig().getStringList("templates.$templateId.allowed_break")
+            allowedSet.addAll(list)
+        }
 
         if (data.hunterRank < threat) {
             player.sendMessage("§c[!] Acceso Denegado.")
@@ -58,7 +66,8 @@ class MissionManager(private val plugin: BastionCore) {
                 targetId = targetId,
                 requiredAmount = amount,
                 rewardGold = reward,
-                threatLevel = threat
+                threatLevel = threat,
+                allowedBlocks = allowedSet
             )
 
             plugin.gameManager.startGame(activeMission, radius)

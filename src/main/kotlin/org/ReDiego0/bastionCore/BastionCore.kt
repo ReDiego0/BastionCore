@@ -3,19 +3,8 @@ package org.ReDiego0.bastionCore
 import net.milkbowl.vault.economy.Economy
 import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
-import org.ReDiego0.bastionCore.listener.CitadelListener
-import org.ReDiego0.bastionCore.listener.CombatListener
-import org.ReDiego0.bastionCore.listener.GameListener
-import org.ReDiego0.bastionCore.listener.InputListener
-import org.ReDiego0.bastionCore.listener.MissionListener
-import org.ReDiego0.bastionCore.listener.StaminaListener
-import org.ReDiego0.bastionCore.listener.UltimateListener
-import org.ReDiego0.bastionCore.manager.BoardCycleManager
-import org.ReDiego0.bastionCore.manager.CooldownManager
-import org.ReDiego0.bastionCore.manager.GameManager
-import org.ReDiego0.bastionCore.manager.InstanceManager
-import org.ReDiego0.bastionCore.manager.MissionManager
-import org.ReDiego0.bastionCore.manager.VaultManager
+import org.ReDiego0.bastionCore.listener.*
+import org.ReDiego0.bastionCore.manager.*
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.plugin.RegisteredServiceProvider
@@ -36,6 +25,7 @@ class BastionCore : JavaPlugin() {
     lateinit var boardCycleManager: BoardCycleManager
     lateinit var missionManager: MissionManager
     lateinit var gameManager: GameManager
+    lateinit var worldGuardManager: WorldGuardManager
 
     var economy: Economy? = null
 
@@ -47,6 +37,7 @@ class BastionCore : JavaPlugin() {
         ContractUtils.reloadMissions()
         citadelWorldName = config.getString("citadel_world", "Bastion")!!
 
+        worldGuardManager = WorldGuardManager()
         playerDataManager = PlayerDataManager(this)
         cooldownManager = CooldownManager()
         combatManager = CombatManager(this)
@@ -64,8 +55,9 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(UltimateListener(),this)
         server.pluginManager.registerEvents(CombatListener(this), this)
         server.pluginManager.registerEvents(MissionListener(this, missionManager), this)
-        server.pluginManager.registerEvents(org.ReDiego0.bastionCore.listener.BoardListener(this), this)
+        server.pluginManager.registerEvents(BoardListener(this), this)
         server.pluginManager.registerEvents(GameListener(this), this)
+        server.pluginManager.registerEvents(InstanceProtectionListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand())
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))

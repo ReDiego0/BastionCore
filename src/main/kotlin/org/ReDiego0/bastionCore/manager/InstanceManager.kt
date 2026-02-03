@@ -34,7 +34,9 @@ class InstanceManager(private val plugin: BastionCore) {
         world?.isAutoSave = false
 
         if (world != null) {
+            world.isAutoSave = false
             activeInstances[instanceName] = UUID.randomUUID()
+            plugin.worldGuardManager.applyInstanceRules(world)
         }
 
         return world

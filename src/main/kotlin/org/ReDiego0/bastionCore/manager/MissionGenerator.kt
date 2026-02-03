@@ -85,6 +85,7 @@ class MissionGenerator(private val plugin: BastionCore) {
         pdc.set(ContractUtils.DATA_MISSION_TYPE_ENUM_KEY, PersistentDataType.STRING, typeStr)
         pdc.set(ContractUtils.DATA_REQUIRED_AMOUNT_KEY, PersistentDataType.INTEGER, amount)
         pdc.set(ContractUtils.DATA_SPAWN_RADIUS_KEY, PersistentDataType.INTEGER, radius)
+        pdc.set(ContractUtils.DATA_TEMPLATE_ID_KEY, PersistentDataType.STRING, templateId)
 
         item.itemMeta = meta
         return item
