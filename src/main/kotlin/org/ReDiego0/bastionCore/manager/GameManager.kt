@@ -74,24 +74,24 @@ class GameManager(private val plugin: BastionCore) {
 
     fun handleDefeat(worldName: String, reason: String) {
         val mission = activeGames[worldName] ?: return
-
+        activeGames.remove(worldName)
         bossBars[worldName]?.removeAll()
         bossBars.remove(worldName)
 
         broadcastToWorld(worldName, "§4█ MISIÓN FALLIDA █")
         broadcastToWorld(worldName, "§cMotivo: $reason")
 
-        val world = Bukkit.getWorld(worldName) ?: return
-
-        for (player in world.players) {
-            player.sendTitle("§4MISIÓN FALLIDA", "§c$reason", 10, 100, 20)
-            player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+        val world = Bukkit.getWorld(worldName)
+        if (world != null) {
+            for (player in world.players) {
+                player.sendTitle("§4MISIÓN FALLIDA", "§c$reason", 10, 100, 20)
+                player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+            }
         }
 
         object : BukkitRunnable() {
             override fun run() {
                 plugin.instanceManager.unloadInstance(worldName)
-                activeGames.remove(worldName)
             }
         }.runTaskLater(plugin, 20L * 5)
     }
