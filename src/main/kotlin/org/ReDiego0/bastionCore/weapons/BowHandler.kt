@@ -2,6 +2,7 @@ package org.ReDiego0.bastionCore.combat.weapons
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.bukkit.Color
 import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -33,13 +34,15 @@ class BowHandler(private val plugin: BastionCore) {
         val start = player.eyeLocation
         val dir = start.direction.normalize()
 
+        val dustOptions = Particle.DustOptions(Color.MAROON, 1.5f)
+
         for (i in 0..40) {
             val point = start.clone().add(dir.clone().multiply(i.toDouble()))
-            player.world.spawnParticle(Particle.DRAGON_BREATH, point, 1, 0.0, 0.0, 0.0, 0.0)
-            player.world.spawnParticle(Particle.DUST, point, 1, 0.1, 0.1, 0.1, 0.0, Particle.DustOptions(org.bukkit.Color.MAROON, 1.5f))
-
+            player.world.spawnParticle(Particle.DRAGON_BREATH, point, 1, 0.0, 0.0, 0.0, 0.0, null)
+            player.world.spawnParticle(Particle.DUST, point, 1, 0.0, 0.0, 0.0, 0.0, dustOptions)
             for (e in player.world.getNearbyEntities(point, 0.8, 0.8, 0.8)) {
                 if (e is LivingEntity && e != player) {
+                    e.noDamageTicks = 0
                     e.damage(45.0, player)
                     e.fireTicks = 100
                 }

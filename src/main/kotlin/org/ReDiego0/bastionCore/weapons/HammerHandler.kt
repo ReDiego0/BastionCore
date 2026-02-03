@@ -2,6 +2,7 @@ package org.ReDiego0.bastionCore.combat.weapons
 
 import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.manager.CooldownManager
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -28,13 +29,22 @@ class HammerHandler(private val plugin: BastionCore) {
 
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             if (!player.isOnline) return@Runnable
-            player.world.spawnParticle(Particle.COPPER_FIRE_FLAME, player.location, 50, 1.0, 0.1, 1.0, 0.1, org.bukkit.Material.DIRT.createBlockData())
-            player.playSound(player.location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1f, 0.5f)
+            if (!player.isOnline) return@Runnable
 
-            for (e in player.world.getNearbyEntities(player.location, 4.0, 2.0, 4.0)) {
+            try {
+                val blockData = Material.DIRT.createBlockData()
+                player.world.spawnParticle(Particle.BLOCK, player.location, 50, 1.0, 0.1, 1.0, 0.1, blockData)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            player.playSound(player.location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1f, 0.5f)
+            val impactRadius = 5.0
+            for (e in player.world.getNearbyEntities(player.location, impactRadius, 3.0, impactRadius)) {
                 if (e is LivingEntity && e != player) {
                     e.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 60, 2))
+                    e.noDamageTicks = 0
                     e.damage(15.0, player)
+                    e.velocity = Vector(0.0, 0.5, 0.0)
                 }
             }
         }, 15L)
