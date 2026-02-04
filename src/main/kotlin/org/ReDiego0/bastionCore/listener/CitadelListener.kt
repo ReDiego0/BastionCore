@@ -56,7 +56,15 @@ class CitadelListener(private val plugin: BastionCore) : Listener {
                 typeName.endsWith("_BOOTS") ||
                 typeName == "SHIELD" ||
                 typeName == "ELYTRA" ||
-                typeName == "ARROW"
+                typeName == "ARROW"  ||
+                typeName == "SWORD"  ||
+                typeName == "BOW"    ||
+                typeName == "TRIDENT"||
+                typeName == "CROSSBOW"  ||
+                typeName == "FISHING_ROD" ||
+                typeName == "AXE"    ||
+                typeName == "PICKAXE"||
+                typeName == "SHOVEL"
 
         if (isRPGWeapon || isArmorOrGear) {
             event.isCancelled = true
