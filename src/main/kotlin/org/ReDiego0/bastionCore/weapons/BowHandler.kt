@@ -26,6 +26,7 @@ class BowHandler(private val plugin: BastionCore) {
         arrow.velocity = arrow.velocity.multiply(1.5)
         arrow.isCritical = true
         arrow.persistentDataContainer.set(EXPLOSIVE_KEY, PersistentDataType.BYTE, 1.toByte())
+        player.world.spawnParticle(Particle.SMOKE, player.eyeLocation.add(player.location.direction), 5, 0.1, 0.1, 0.1, 0.05)
     }
 
     fun handlePrimary(player: Player) {
@@ -79,7 +80,7 @@ class BowHandler(private val plugin: BastionCore) {
         for (i in 0..range step 1) {
             val point = start.clone().add(dir.clone().multiply(i.toDouble()))
 
-            player.world.spawnParticle(Particle.END_ROD, point, 1, 0.0, 0.0, 0.0, 0.0)
+            player.world.spawnParticle(Particle.FIREWORK, point, 1, 0.0, 0.0, 0.0, 0.0)
             player.world.spawnParticle(Particle.FLAME, point, 2, 0.1, 0.1, 0.1, 0.01)
             player.world.spawnParticle(Particle.LAVA, point, 1, 0.0, 0.0, 0.0, 0.0)
 

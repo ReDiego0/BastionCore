@@ -54,6 +54,8 @@ class InputListener(
         if (weaponType == WeaponType.NONE) return
 
         event.isCancelled = true
+        if (player.world.name == plugin.citadelWorldName) return
+
         combatManager.handleWeaponPrimary(player, weaponType)
     }
 

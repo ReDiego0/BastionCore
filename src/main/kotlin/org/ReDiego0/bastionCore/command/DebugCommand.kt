@@ -34,7 +34,7 @@ class DebugCommand(private val plugin: BastionCore) : CommandExecutor {
                     val material = when (type) {
                         WeaponType.GREATSWORD -> Material.NETHERITE_SWORD
                         WeaponType.HAMMER -> Material.MACE
-                        WeaponType.SPEAR -> Material.TRIDENT
+                        WeaponType.SPEAR -> Material.DIAMOND_SWORD
                         WeaponType.BOW -> Material.BOW
                         WeaponType.KATANA -> Material.IRON_SWORD
                         WeaponType.DUAL_BLADES -> Material.GOLDEN_SWORD

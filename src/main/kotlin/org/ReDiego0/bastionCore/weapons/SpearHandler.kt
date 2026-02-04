@@ -53,7 +53,7 @@ class SpearHandler(private val plugin: BastionCore) {
             val currentLoc = origin.clone().add(direction.clone().multiply(dist))
 
             player.world.spawnParticle(Particle.CRIT, currentLoc, 1, 0.0, 0.0, 0.0, 0.0)
-            player.world.spawnParticle(Particle.FLASH, currentLoc, 0) // Destello rápido
+            player.world.spawnParticle(Particle.SWEEP_ATTACK, currentLoc, 1, 0.0, 0.0, 0.0, 0.0)
 
             if (currentLoc.block.type.isSolid) {
                 hitLocation = currentLoc
