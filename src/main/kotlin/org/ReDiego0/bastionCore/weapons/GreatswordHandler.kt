@@ -18,7 +18,7 @@ class GreatswordHandler(private val plugin: BastionCore) {
         if (plugin.cooldownManager.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_SECONDARY)) return
 
         player.playSound(player.location, Sound.ITEM_SHIELD_BLOCK, 1f, 0.5f)
-        player.playSound(player.location, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.5f, 0.5f) // Golpe seco
+        player.playSound(player.location, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.5f, 0.5f)
 
         player.world.spawnParticle(Particle.CLOUD, player.location.add(player.location.direction), 15, 0.5, 0.5, 0.5, 0.1)
 
@@ -32,8 +32,6 @@ class GreatswordHandler(private val plugin: BastionCore) {
 
     fun handlePrimary(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_PRIMARY, 12.0)
-
-        // Sonido de carga progresiva
         player.playSound(player.location, Sound.BLOCK_PORTAL_TRIGGER, 0.5f, 2f)
         player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 40, 10))
 
