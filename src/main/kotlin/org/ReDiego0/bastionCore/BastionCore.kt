@@ -5,6 +5,7 @@ import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
 import org.ReDiego0.bastionCore.listener.*
 import org.ReDiego0.bastionCore.manager.*
+import org.ReDiego0.bastionCore.task.CitadelTask
 import org.ReDiego0.bastionCore.task.StaminaTask
 import org.ReDiego0.bastionCore.task.TrackingTask
 import org.ReDiego0.bastionCore.utils.ContractUtils
@@ -73,6 +74,7 @@ class BastionCore : JavaPlugin() {
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
         TrackingTask(this).runTaskTimer(this, 20L, 2L)
+        CitadelTask(this).runTaskTimer(this, 20L, 3L)
 
         logger.info("§a[BastionCore] Sistemas de soporte vital activos. Ciudadela: $citadelWorldName")
 
