@@ -5,11 +5,14 @@ import org.ReDiego0.bastionCore.combat.ActiveMission
 import org.ReDiego0.bastionCore.combat.MissionType
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 
 class MissionManager(private val plugin: BastionCore) {
 
@@ -71,6 +74,14 @@ class MissionManager(private val plugin: BastionCore) {
 
         if (world != null) {
             item.amount = item.amount - 1
+            spawnStaticMobs(world, templateWorld)
+            var finalRadius = radius
+            if (typeStr == "HUNT") {
+                if (spawnMissionBoss(world, templateId, targetId)) {
+                    plugin.logger.info("Boss $targetId spawneado en coordenada fija. Desactivando random spawn.")
+                    finalRadius = 0
+                }
+            }
 
             val party = plugin.partyManager.getParty(player.uniqueId)
             val teamMembers = ArrayList<UUID>()
@@ -106,11 +117,69 @@ class MissionManager(private val plugin: BastionCore) {
                 currentLives = lives
             )
 
-            plugin.gameManager.startGame(activeMission, radius)
+            plugin.gameManager.startGame(activeMission, finalRadius)
             plugin.logger.info("Juego iniciado: ${player.name} vs $targetId ($typeStr) en ${world.name}")
 
         } else {
             player.sendMessage("§cError Crítico: No se pudo generar la instancia.")
         }
+    }
+
+
+    private fun spawnStaticMobs(world: World, templateName: String) {
+        val config = ContractUtils.getConfig()
+        val path = "world_spawns.$templateName"
+
+        if (!config.contains(path)) return
+
+        val mobsSection = config.getConfigurationSection(path) ?: return
+
+        for (mobId in mobsSection.getKeys(false)) {
+            val spawnList = config.getStringList("$path.$mobId")
+
+            for (entry in spawnList) {
+                try {
+                    val parts = entry.split(",")
+                    val x = parts[0].toDouble()
+                    val y = parts[1].toDouble()
+                    val z = parts[2].toDouble()
+                    val amount = if (parts.size > 3) parts[3].toInt() else 1
+
+                    val loc = Location(world, x, y, z)
+
+                    repeat(amount) {
+                        SpawnManager.spawnBoss(loc, mobId)
+                    }
+                } catch (e: Exception) {
+                    plugin.logger.warning("Error leyendo spawn estático '$entry' en mapa $templateName")
+                }
+            }
+        }
+    }
+
+    private fun spawnMissionBoss(world: World, templateId: String?, bossId: String): Boolean {
+        if (templateId == null) return false
+
+        val config = ContractUtils.getConfig()
+        val path = "templates.$templateId.boss_locations.$bossId"
+
+        if (config.contains(path)) {
+            val locations = config.getStringList(path)
+            if (locations.isNotEmpty()) {
+                val randomLocStr = locations[ThreadLocalRandom.current().nextInt(locations.size)]
+                try {
+                    val parts = randomLocStr.split(",")
+                    val x = parts[0].toDouble()
+                    val y = parts[1].toDouble()
+                    val z = parts[2].toDouble()
+                    val loc = Location(world, x, y, z)
+
+                    return SpawnManager.spawnBoss(loc, bossId)
+                } catch (e: Exception) {
+                    plugin.logger.warning("Error en coordenada boss fija: $randomLocStr")
+                }
+            }
+        }
+        return false
     }
 }

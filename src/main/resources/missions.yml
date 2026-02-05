@@ -15,8 +15,15 @@ defaults:
     time_limit: 400
     lives: 3
 
-templates:
+world_spawns:
+  test: # Nombre de la carpeta en /templates/test
+    FrostRaptor:
+      - "105,70,45,3"   # "x,y,z,cantidad"
+      - "-50,68,120,2"
+    BarkBeetle:
+      - "10,64,10,1"
 
+templates:
   # ==========================================================
   # PLANTILLA 1: CAZA
   # ==========================================================
@@ -27,6 +34,13 @@ templates:
     trigger_block: OAK_FENCE  # Interactuarán con ese bloque para empezar la misión
     radius: 60                # El mob spawneara en ese radio
     threat_level: 1
+
+    # Si el generador elige "GlacialUrsus", elegirá una de sus coordenadas al azar.
+    # Si no hay coordenadas aquí, usará el sistema antiguo de radio aleatorio.
+    boss_locations:
+      GlacialUrsus:
+        - "0,70,0"      # Claro del bosque (Arena 1)
+        - "150,65,-150" # Cueva helada (Arena 2)
 
     # El código elegirá UNO de estos al azar basado en el peso (weight)
     objectives:

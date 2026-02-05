@@ -4,10 +4,23 @@ import io.lumine.mythic.api.mobs.MythicMob
 import io.lumine.mythic.bukkit.BukkitAdapter
 import io.lumine.mythic.bukkit.MythicBukkit
 import org.bukkit.Location
+import org.bukkit.World
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 
 object SpawnManager {
+    fun parseLocation(world: World, coordString: String): Location? {
+        try {
+            val parts = coordString.split(",")
+            val x = parts[0].toDouble()
+            val y = parts[1].toDouble()
+            val z = parts[2].toDouble()
+            return Location(world, x, y, z)
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
     fun spawnBoss(location: Location, mobId: String): Boolean {
         val chunk = location.chunk
         if (!chunk.isLoaded) {
