@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.3.20-Beta2"
+    kotlin("jvm") version "2.2.0"
     id("com.gradleup.shadow") version "8.3.0"
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
@@ -16,6 +16,7 @@ repositories {
     maven("https://mvn.lumine.io/repository/maven-public/")
     maven("https://jitpack.io")
     maven("https://maven.enginehub.org/repo/")
+    maven("https://maven.devs.beer/")
 }
 
 dependencies {
@@ -28,6 +29,7 @@ dependencies {
     }
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0")
+    compileOnly("dev.lone:api-itemsadder:4.0.10")
 }
 
 tasks {

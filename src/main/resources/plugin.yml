@@ -4,6 +4,7 @@ main: org.ReDiego0.bastionCore.BastionCore
 api-version: '1.21'
 softdepend:
   - PlaceholderAPI
+  - ItemsAdder
 commands:
   bastiondebug:
     description: Comandos de prueba para desarrolladores (armas, stats).
