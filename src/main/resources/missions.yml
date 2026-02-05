@@ -34,6 +34,7 @@ templates:
     trigger_block: OAK_FENCE  # Interactuarán con ese bloque para empezar la misión
     radius: 60                # El mob spawneara en ese radio
     threat_level: 1
+    player_spawn: "0,65,0"
 
     # Si el generador elige "GlacialUrsus", elegirá una de sus coordenadas al azar.
     # Si no hay coordenadas aquí, usará el sistema antiguo de radio aleatorio.

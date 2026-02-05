@@ -83,6 +83,7 @@ class MissionManager(private val plugin: BastionCore) {
                 }
             }
 
+            val spawnLocation = getPlayerSpawn(world,templateId)
             val party = plugin.partyManager.getParty(player.uniqueId)
             val teamMembers = ArrayList<UUID>()
 
@@ -90,14 +91,14 @@ class MissionManager(private val plugin: BastionCore) {
                 for (memberId in party.members) {
                     val member = Bukkit.getPlayer(memberId)
                     if (member != null && member.world.name == plugin.citadelWorldName) {
-                        member.teleport(world.spawnLocation)
+                        member.teleport(spawnLocation)
                         member.playSound(member.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
                         member.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
                         teamMembers.add(memberId)
                     }
                 }
             } else {
-                player.teleport(world.spawnLocation)
+                player.teleport(spawnLocation)
                 player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
                 player.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
                 teamMembers.add(player.uniqueId)
@@ -125,6 +126,26 @@ class MissionManager(private val plugin: BastionCore) {
         }
     }
 
+    private fun getPlayerSpawn(world: World, templateId: String?): Location {
+        if (templateId != null) {
+            val config = ContractUtils.getConfig()
+            val spawnStr = config.getString("templates.$templateId.player_spawn")
+
+            if (spawnStr != null) {
+                try {
+                    val parts = spawnStr.split(",")
+                    val x = parts[0].toDouble()
+                    val y = parts[1].toDouble()
+                    val z = parts[2].toDouble()
+
+                    return Location(world, x + 0.5, y, z + 0.5, 0f, 0f)
+                } catch (e: Exception) {
+                    plugin.logger.warning("Error leyendo player_spawn en $templateId: $spawnStr")
+                }
+            }
+        }
+        return world.spawnLocation
+    }
 
     private fun spawnStaticMobs(world: World, templateName: String) {
         val config = ContractUtils.getConfig()
