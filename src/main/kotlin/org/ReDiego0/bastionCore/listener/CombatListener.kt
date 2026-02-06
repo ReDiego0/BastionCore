@@ -121,15 +121,30 @@ class CombatListener(private val plugin: BastionCore) : Listener {
 
     @EventHandler
     fun onInventoryClick(e: InventoryClickEvent) {
+        val player = e.whoClicked as? Player ?: return
+
         if (e.slotType == InventoryType.SlotType.QUICKBAR && e.slot == 40) {
             if (isOurGhostItem(e.currentItem)) {
                 e.isCancelled = true
-                e.whoClicked.inventory.setItemInOffHand(ItemStack(Material.AIR))
+
+                plugin.server.scheduler.runTask(plugin, Runnable {
+                    updateOffhand(player, player.inventory.itemInMainHand)
+                })
             }
         }
         if (isOurGhostItem(e.cursor)) {
             e.isCancelled = true
             e.view.setCursor(ItemStack(Material.AIR))
+
+            plugin.server.scheduler.runTask(plugin, Runnable {
+                updateOffhand(player, player.inventory.itemInMainHand)
+            })
+        }
+
+        if (e.clickedInventory == player.inventory) {
+            plugin.server.scheduler.runTask(plugin, Runnable {
+                updateOffhand(player, player.inventory.itemInMainHand)
+            })
         }
     }
 
