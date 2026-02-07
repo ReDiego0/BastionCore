@@ -22,6 +22,9 @@ class CitadelListener(private val plugin: BastionCore) : Listener {
             player.gameMode = GameMode.ADVENTURE
             player.allowFlight = false
         }
+
+        player.level = 0
+        player.exp = 0f
     }
 
     @EventHandler

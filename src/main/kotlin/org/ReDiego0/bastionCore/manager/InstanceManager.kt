@@ -36,6 +36,10 @@ class InstanceManager(private val plugin: BastionCore) {
 
             world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, false)
             world.setGameRule(org.bukkit.GameRule.DO_DAYLIGHT_CYCLE, false)
+            world.setGameRule(org.bukkit.GameRule.DO_WEATHER_CYCLE, false)
+            world.setGameRule(org.bukkit.GameRule.KEEP_INVENTORY, true)
+            world.setGameRule(org.bukkit.GameRule.ANNOUNCE_ADVANCEMENTS, false)
+            world.setGameRule(org.bukkit.GameRule.LOCATOR_BAR, false)
             world.time = 6000
 
             activeInstances[instanceName] = UUID.randomUUID()
