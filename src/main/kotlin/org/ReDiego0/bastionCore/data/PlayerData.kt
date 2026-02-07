@@ -12,8 +12,10 @@ data class PlayerData(val uuid: UUID, val name: String) {
     var ultimateCharge: Double = 0.0
     var hunterRank: Int = 1
     var guildPoints: Int = 0
-    var reputationProgress: Float = 0.0f
     var lastStaminaUsage: Long = System.currentTimeMillis()
+
+    val reputationProgress: Float
+        get() = RankUtils.getProgress(guildPoints, hunterRank)
 
 
     fun addCharge(player: Player, amount: Double): Boolean {
