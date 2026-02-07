@@ -1,6 +1,5 @@
 package org.ReDiego0.bastionCore.data
 
-import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.combat.Role
 import org.ReDiego0.bastionCore.utils.RankUtils
 import org.bukkit.Bukkit
@@ -48,7 +47,6 @@ data class PlayerData(val uuid: UUID, val name: String) {
     fun addGuildPoints(amount: Int) {
         guildPoints += amount
         checkLevelUp()
-        syncVanillaExp()
     }
 
     private fun checkLevelUp() {
@@ -69,10 +67,4 @@ data class PlayerData(val uuid: UUID, val name: String) {
         }
     }
 
-    fun syncVanillaExp() {
-        val player = Bukkit.getPlayer(uuid) ?: return
-        if (player.world.name != BastionCore.instance.citadelWorldName) return
-        player.level = hunterRank
-        player.exp = RankUtils.getProgress(guildPoints, hunterRank)
-    }
 }

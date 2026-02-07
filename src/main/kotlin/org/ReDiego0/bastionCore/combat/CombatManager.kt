@@ -66,7 +66,6 @@ class CombatManager(private val plugin: BastionCore) {
         }
 
         data.ultimateCharge = 0.0
-        data.syncVanillaExp()
 
         player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
         player.sendMessage("§b[CLASE] §f¡Habilidad Definitiva Activada!")

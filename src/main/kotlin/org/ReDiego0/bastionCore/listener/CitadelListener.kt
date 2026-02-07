@@ -21,7 +21,6 @@ class CitadelListener(private val plugin: BastionCore) : Listener {
         if (player.world.name == plugin.citadelWorldName) {
             player.gameMode = GameMode.ADVENTURE
             player.allowFlight = false
-            plugin.playerDataManager.getData(player.uniqueId)?.syncVanillaExp()
         }
     }
 
@@ -29,7 +28,6 @@ class CitadelListener(private val plugin: BastionCore) : Listener {
     fun onChangeWorld(event: PlayerChangedWorldEvent) {
         val player = event.player
         if (player.world.name == plugin.citadelWorldName) {
-            plugin.playerDataManager.getData(player.uniqueId)?.syncVanillaExp()
             player.gameMode = GameMode.ADVENTURE
             player.allowFlight = false
         }

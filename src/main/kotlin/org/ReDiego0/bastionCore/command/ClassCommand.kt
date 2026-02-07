@@ -31,7 +31,6 @@ class ClassCommand(private val plugin: BastionCore) : CommandExecutor {
 
                 data.currentRole = newRole
                 data.ultimateCharge = 0.0
-                data.syncVanillaExp()
 
                 sender.sendMessage("§8§m--------------------------------")
                 sender.sendMessage("§a§lCLASE ACTUALIZADA (DEBUG)")

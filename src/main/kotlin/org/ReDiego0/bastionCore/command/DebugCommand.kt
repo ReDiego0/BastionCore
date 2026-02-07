@@ -62,7 +62,6 @@ class DebugCommand(private val plugin: BastionCore) : CommandExecutor {
                 val data = plugin.playerDataManager.getData(sender.uniqueId) ?: return true
                 data.hunterRank = 1
                 data.guildPoints = 0
-                data.syncVanillaExp()
                 sender.sendMessage("§a[Debug] §fTu Rango de Cazador ha sido reiniciado a 1.")
                 sender.playSound(sender.location, Sound.BLOCK_ANVIL_BREAK, 1f, 1f)
             }
@@ -70,7 +69,6 @@ class DebugCommand(private val plugin: BastionCore) : CommandExecutor {
             "maxult" -> {
                 val data = plugin.playerDataManager.getData(sender.uniqueId) ?: return true
                 data.ultimateCharge = 100.0
-                data.syncVanillaExp()
                 sender.sendMessage("§b[Debug] §fBarra de Ultimate cargada al 100%.")
                 sender.playSound(sender.location, Sound.BLOCK_BEACON_POWER_SELECT, 1f, 2f)
             }

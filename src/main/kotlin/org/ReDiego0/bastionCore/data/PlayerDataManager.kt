@@ -60,12 +60,8 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
 
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
-        val data = getData(event.player.uniqueId)
-        if (data != null) {
-            if (event.player.world.name == plugin.citadelWorldName) {
-                data.syncVanillaExp()
-            }
-        }
+        event.player.level = 0
+        event.player.exp = 0f
     }
 
     @EventHandler
@@ -98,16 +94,8 @@ class PlayerDataManager(private val plugin: BastionCore) : Listener {
         }
     }
     private fun updateWorldContext(player: Player) {
-        val data = getData(player.uniqueId) ?: return
-
-        if (player.world.name == plugin.citadelWorldName) {
-            player.level = data.hunterRank
-            player.exp = data.reputationProgress
-
-        } else {
-            player.level = data.ultimateCharge.toInt()
-            player.exp = (data.ultimateCharge / 100.0).toFloat()
-        }
+        player.level = 0
+        player.exp = 0f
     }
 
     private fun startAutoSave() {

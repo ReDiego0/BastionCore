@@ -64,7 +64,6 @@ class CombatListener(private val plugin: BastionCore) : Listener {
 
         if (data.ultimateCharge < 100.0) {
             data.addCharge(player, gain)
-            updateMissionBar(player, data.ultimateCharge)
         }
     }
 
@@ -78,7 +77,6 @@ class CombatListener(private val plugin: BastionCore) : Listener {
 
         if (data.ultimateCharge < 100.0) {
             data.addCharge(killer, gainOnKill)
-            updateMissionBar(killer, data.ultimateCharge)
         }
     }
 
@@ -146,11 +144,6 @@ class CombatListener(private val plugin: BastionCore) : Listener {
                 updateOffhand(player, player.inventory.itemInMainHand)
             })
         }
-    }
-
-    private fun updateMissionBar(player: Player, charge: Double) {
-        player.exp = (charge / 100.0).toFloat().coerceIn(0f, 1f)
-        player.level = charge.toInt()
     }
 
     private fun updateOffhand(player: Player, mainHandItem: ItemStack?) {
