@@ -22,9 +22,12 @@ commands:
   tablon:
     description: Abrir tablón de misiones
     usage: /tabon
-    permission: bastion.admin
+    permission: bastion.player
   clase:
     description: Cambiar de clase
+    permission: bastion.player
+  party:
+    description: Crear escuadrón
     permission: bastion.player
 
 permissions:
