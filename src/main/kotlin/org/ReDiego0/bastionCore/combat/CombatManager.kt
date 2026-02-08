@@ -5,6 +5,7 @@ import org.ReDiego0.bastionCore.combat.weapons.*
 import org.ReDiego0.bastionCore.manager.CooldownManager
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.util.Vector
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -99,4 +100,51 @@ class CombatManager(private val plugin: BastionCore) {
         return true
     }
     fun removeParry(uuid: UUID) { parryPlayers.remove(uuid) }
+
+    fun handleDirectionalDash(player: Player) {
+        val playerId = player.uniqueId
+        if (plugin.cooldownManager.isOnCooldown(playerId, CooldownManager.CooldownType.DASH)) {
+            return
+        }
+
+        val velocity = player.velocity
+        if (velocity.lengthSquared() < 0.01) {
+            val backDir = player.location.direction.multiply(-1).setY(0).normalize()
+            performDash(player, backDir, "§7Backstep")
+            return
+        }
+
+        val targetDir = velocity.clone().setY(0).normalize()
+        val playerDir = player.location.direction.clone().setY(0).normalize()
+        val dot = targetDir.dot(playerDir)
+        var dashType = "Dash"
+        var power = 1.5
+
+        if (dot > 0.5) {
+            dashType = "§bDash Frontal" // W
+            power = 1.8
+        } else if (dot < -0.5) {
+            dashType = "§7Dash Retirada" // S
+            power = 1.4
+        } else {
+            val crossY = (playerDir.x * targetDir.z) - (playerDir.z * targetDir.x)
+            if (crossY > 0) {
+                dashType = "§eDash Derecha" // D
+            } else {
+                dashType = "§eDash Izquierda" // A
+            }
+            power = 1.6
+        }
+
+        performDash(player, targetDir, dashType, power)
+    }
+
+    private fun performDash(player: Player, direction: Vector, name: String, power: Double = 1.5) {
+        plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.DASH, 2.0)
+        player.velocity = direction.multiply(power).setY(0.4)
+        player.noDamageTicks = 15
+        player.world.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f)
+        player.world.spawnParticle(org.bukkit.Particle.CLOUD, player.location, 5, 0.2, 0.1, 0.2, 0.05)
+        player.sendActionBar(name)
+    }
 }

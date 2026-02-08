@@ -1,6 +1,7 @@
 package org.ReDiego0.bastionCore.manager
 
-import java.util.UUID
+import org.bukkit.entity.Player
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class CooldownManager {
@@ -8,7 +9,8 @@ class CooldownManager {
     enum class CooldownType {
         WEAPON_PRIMARY,   // Tecla Q
         WEAPON_SECONDARY, // Click Derecho
-        CLASS_ULTIMATE    // Tecla F
+        CLASS_ULTIMATE,   // Tecla F
+        DASH              // Shift + Movimiento (NUEVO)
     }
 
     private val cooldowns = ConcurrentHashMap<UUID, MutableMap<CooldownType, Long>>()
@@ -30,12 +32,15 @@ class CooldownManager {
         cooldowns.computeIfAbsent(uuid) { ConcurrentHashMap() }[type] = expiryTime
     }
 
-    fun checkAndNotify(player: org.bukkit.entity.Player, type: CooldownType): Boolean {
+    fun isOnCooldown(uuid: UUID, type: CooldownType): Boolean {
+        return getRemainingSeconds(uuid, type) > 0.0
+    }
+
+    fun checkAndNotify(player: Player, type: CooldownType): Boolean {
         val remaining = getRemainingSeconds(player.uniqueId, type)
         if (remaining > 0) {
-            // Formatear a 1 decimal (ej: "1.5s")
             val formatted = String.format("%.1f", remaining)
-            player.sendMessage("§cHabilidad en espera: $formatted s") // A futuro: Usar Action Bar
+            player.sendActionBar(net.kyori.adventure.text.Component.text("§cHabilidad en espera: $formatted s"))
             return true
         }
         return false

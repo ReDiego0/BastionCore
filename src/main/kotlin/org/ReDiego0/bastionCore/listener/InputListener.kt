@@ -11,6 +11,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
 
 class InputListener(
@@ -41,6 +42,16 @@ class InputListener(
             combatManager.handleRightClick(player, weaponType)
         }
     }
+
+    @EventHandler
+    fun onSneak(event: PlayerToggleSneakEvent) {
+        val player = event.player
+        if (!event.isSneaking) return
+        if (!player.world.name.startsWith("inst_")) return
+        if (player.world.name == plugin.citadelWorldName) return
+        combatManager.handleDirectionalDash(player)
+    }
+
 
 
     @EventHandler
