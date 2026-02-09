@@ -12,15 +12,14 @@ import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.Vector
 
 class KatanaHandler(private val plugin: BastionCore) {
+
     fun handleRightClick(player: Player) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.WEAPON_SECONDARY, 8.0)
-
-        val back = player.location.direction.multiply(-1).normalize().multiply(1.0).setY(0.2)
-        player.velocity = back
         player.playSound(player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.5f)
-
-        plugin.combatManager.setParry(player.uniqueId, 15)
-        player.sendMessage("§b⚡ Postura de Desvío")
+        player.playSound(player.location, Sound.ITEM_SHIELD_BLOCK, 1f, 0.5f) // Sonido sutil de "preparar bloqueo"
+        player.world.spawnParticle(Particle.ENCHANT, player.location, 15, 0.3, 0.1, 0.3, 1.0)
+        plugin.combatManager.setParry(player.uniqueId, 35)
+        player.sendMessage("§b⚡ Postura de Desvío (Activa)")
     }
 
     fun handlePrimary(player: Player) {
