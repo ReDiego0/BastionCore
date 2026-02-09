@@ -22,5 +22,7 @@ data class ActiveMission(
     val maxLives: Int,
     var currentLives: Int,
 
-    var isEnded: Boolean = false
+    var isEnded: Boolean = false,
+
+    val targetLocationString: String? = null
 )

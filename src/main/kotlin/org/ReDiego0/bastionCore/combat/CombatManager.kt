@@ -103,35 +103,39 @@ class CombatManager(private val plugin: BastionCore) {
 
     fun handleDirectionalDash(player: Player) {
         val playerId = player.uniqueId
+
         if (plugin.cooldownManager.isOnCooldown(playerId, CooldownManager.CooldownType.DASH)) {
             return
         }
 
         val velocity = player.velocity
-        if (velocity.lengthSquared() < 0.01) {
-            val backDir = player.location.direction.multiply(-1).setY(0).normalize()
-            performDash(player, backDir, "§7Backstep")
+        val horizontalVelocity = velocity.clone().setY(0)
+        if (horizontalVelocity.lengthSquared() < 0.01) {
+            val backDir = player.location.direction.clone().setY(0).normalize().multiply(-1)
+            performDash(player, backDir, "§7Evasión Atrás", 1.0)
             return
         }
 
-        val targetDir = velocity.clone().setY(0).normalize()
+        val targetDir = horizontalVelocity.normalize()
         val playerDir = player.location.direction.clone().setY(0).normalize()
+
         val dot = targetDir.dot(playerDir)
+
         var dashType = "Dash"
         var power = 1.5
 
         if (dot > 0.5) {
-            dashType = "§bDash Frontal" // W
+            dashType = "§bDash Frontal"
             power = 1.8
         } else if (dot < -0.5) {
-            dashType = "§7Dash Retirada" // S
+            dashType = "§7Retirada"
             power = 1.4
         } else {
             val crossY = (playerDir.x * targetDir.z) - (playerDir.z * targetDir.x)
             if (crossY > 0) {
-                dashType = "§eDash Derecha" // D
+                dashType = "§eDash Derecha"
             } else {
-                dashType = "§eDash Izquierda" // A
+                dashType = "§eDash Izquierda"
             }
             power = 1.6
         }

@@ -37,8 +37,9 @@ class GameManager(private val plugin: BastionCore) {
     }
 
     private fun updateMissionTimer(mission: ActiveMission) {
-        mission.timeElapsed++
+        if (mission.isEnded) return
 
+        mission.timeElapsed++
         val timeLeft = mission.timeLimitSeconds - mission.timeElapsed
 
         if (timeLeft == 300) {
@@ -76,7 +77,6 @@ class GameManager(private val plugin: BastionCore) {
 
                 player.health = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
                 player.foodLevel = 20
-
                 player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
             }
         }
@@ -109,7 +109,6 @@ class GameManager(private val plugin: BastionCore) {
         }.runTaskLater(plugin, 100L)
     }
 
-
     fun startGame(mission: ActiveMission, spawnRadius: Int) {
         activeGames[mission.worldName] = mission
         val world = Bukkit.getWorld(mission.worldName) ?: return
@@ -117,8 +116,10 @@ class GameManager(private val plugin: BastionCore) {
         val barTitle = getBarTitle(mission)
         val bar = Bukkit.createBossBar(barTitle, BarColor.RED, BarStyle.SEGMENTED_10)
         bar.progress = 0.0
-        val player = Bukkit.getPlayer(mission.leaderId)
-        if (player != null) bar.addPlayer(player)
+
+        for (p in world.players) {
+            bar.addPlayer(p)
+        }
         bossBars[mission.worldName] = bar
 
         if (mission.type == MissionType.HUNT || mission.type == MissionType.EXTERMINATION) {
@@ -129,10 +130,24 @@ class GameManager(private val plugin: BastionCore) {
     }
 
     private fun spawnTargets(world: org.bukkit.World, mission: ActiveMission, radius: Int) {
-        val center = world.spawnLocation
-        val amountToSpawn = mission.requiredAmount
+        var center = world.spawnLocation
 
-        plugin.logger.info("Spawneando $amountToSpawn x ${mission.targetId} en radio $radius")
+        if (radius <= 0 && mission.targetLocationString != null) {
+            val parts = mission.targetLocationString.split(",")
+            if (parts.size >= 3) {
+                try {
+                    val x = parts[0].toDouble()
+                    val y = parts[1].toDouble()
+                    val z = parts[2].toDouble()
+                    center = Location(world, x, y, z)
+                } catch (e: Exception) {
+                    plugin.logger.warning("Error parseando ubicación fija del boss: ${mission.targetLocationString}")
+                }
+            }
+        }
+
+        val amountToSpawn = mission.requiredAmount
+        plugin.logger.info("Spawneando $amountToSpawn x ${mission.targetId} en radio $radius desde ${center.blockX},${center.blockY},${center.blockZ}")
 
         var spawnedCount = 0
         for (i in 0 until amountToSpawn) {
@@ -149,11 +164,17 @@ class GameManager(private val plugin: BastionCore) {
     }
 
     private fun getSafeRandomLocation(center: Location, radius: Int): Location? {
+        if (radius <= 0) {
+            return center.clone().add(0.0, 1.0, 0.0)
+        }
+
         val world = center.world ?: return null
         for (i in 0..15) {
-            val x = center.blockX + ThreadLocalRandom.current().nextInt(-radius, radius)
-            val z = center.blockZ + ThreadLocalRandom.current().nextInt(-radius, radius)
+            val rX = ThreadLocalRandom.current().nextInt(-radius, radius + 1)
+            val rZ = ThreadLocalRandom.current().nextInt(-radius, radius + 1)
 
+            val x = center.blockX + rX
+            val z = center.blockZ + rZ
             val y = world.getHighestBlockYAt(x, z)
 
             val block = world.getBlockAt(x, y, z)

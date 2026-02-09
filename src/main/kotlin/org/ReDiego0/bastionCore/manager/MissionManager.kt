@@ -11,7 +11,6 @@ import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 
 class MissionManager(private val plugin: BastionCore) {
@@ -39,7 +38,6 @@ class MissionManager(private val plugin: BastionCore) {
         var lives = 3
 
         val missionId = pdc.get(ContractUtils.MISSION_ID_KEY, PersistentDataType.STRING)
-
         val templateId = pdc.get(ContractUtils.DATA_TEMPLATE_ID_KEY, PersistentDataType.STRING)
         val allowedSet = HashSet<String>()
 
@@ -61,9 +59,7 @@ class MissionManager(private val plugin: BastionCore) {
         }
 
         if (data.hunterRank < threat) {
-            player.sendMessage("§c[!] Acceso Denegado.")
-            player.sendMessage("§7Esta misión requiere Rango de Cazador: §e$threat")
-            player.sendMessage("§7Tu Rango actual es: §c${data.hunterRank}")
+            player.sendMessage("§c[!] Acceso Denegado. Rango requerido: $threat")
             player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f)
             return
         }
@@ -75,17 +71,21 @@ class MissionManager(private val plugin: BastionCore) {
         if (world != null) {
             item.amount = item.amount - 1
             spawnStaticMobs(world, templateWorld)
+
             var finalRadius = radius
+            var targetLocationStr: String? = null
+
             if (typeStr == "HUNT") {
-                if (spawnMissionBoss(world, templateId, targetId)) {
-                    plugin.logger.info("Boss $targetId spawneado en coordenada fija. Desactivando random spawn.")
+                targetLocationStr = getFixedBossLocation(templateId, targetId)
+
+                if (targetLocationStr != null) {
+                    plugin.logger.info("Boss $targetId tiene ubicación fija: $targetLocationStr")
                     finalRadius = 0
                 }
             }
 
-            val spawnLocation = getPlayerSpawn(world,templateId)
+            val spawnLocation = getPlayerSpawn(world, templateId)
             val party = plugin.partyManager.getParty(player.uniqueId)
-            val teamMembers = ArrayList<UUID>()
 
             if (party != null && party.isLeader(player.uniqueId)) {
                 for (memberId in party.members) {
@@ -94,14 +94,12 @@ class MissionManager(private val plugin: BastionCore) {
                         member.teleport(spawnLocation)
                         member.playSound(member.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
                         member.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
-                        teamMembers.add(memberId)
                     }
                 }
             } else {
                 player.teleport(spawnLocation)
                 player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 0.5f)
                 player.sendTitle("§cMISIÓN INICIADA", "§7Objetivo: $targetId", 10, 70, 20)
-                teamMembers.add(player.uniqueId)
             }
 
             val activeMission = ActiveMission(
@@ -115,7 +113,8 @@ class MissionManager(private val plugin: BastionCore) {
                 allowedBlocks = allowedSet,
                 timeLimitSeconds = timeLimit,
                 maxLives = lives,
-                currentLives = lives
+                currentLives = lives,
+                targetLocationString = targetLocationStr
             )
 
             plugin.gameManager.startGame(activeMission, finalRadius)
@@ -157,7 +156,6 @@ class MissionManager(private val plugin: BastionCore) {
 
         for (mobId in mobsSection.getKeys(false)) {
             val spawnList = config.getStringList("$path.$mobId")
-
             for (entry in spawnList) {
                 try {
                     val parts = entry.split(",")
@@ -167,19 +165,18 @@ class MissionManager(private val plugin: BastionCore) {
                     val amount = if (parts.size > 3) parts[3].toInt() else 1
 
                     val loc = Location(world, x, y, z)
-
                     repeat(amount) {
                         SpawnManager.spawnBoss(loc, mobId)
                     }
                 } catch (e: Exception) {
-                    plugin.logger.warning("Error leyendo spawn estático '$entry' en mapa $templateName")
+                    plugin.logger.warning("Error spawn estático: $entry")
                 }
             }
         }
     }
 
-    private fun spawnMissionBoss(world: World, templateId: String?, bossId: String): Boolean {
-        if (templateId == null) return false
+    private fun getFixedBossLocation(templateId: String?, bossId: String): String? {
+        if (templateId == null) return null
 
         val config = ContractUtils.getConfig()
         val path = "templates.$templateId.boss_locations.$bossId"
@@ -187,20 +184,9 @@ class MissionManager(private val plugin: BastionCore) {
         if (config.contains(path)) {
             val locations = config.getStringList(path)
             if (locations.isNotEmpty()) {
-                val randomLocStr = locations[ThreadLocalRandom.current().nextInt(locations.size)]
-                try {
-                    val parts = randomLocStr.split(",")
-                    val x = parts[0].toDouble()
-                    val y = parts[1].toDouble()
-                    val z = parts[2].toDouble()
-                    val loc = Location(world, x, y, z)
-
-                    return SpawnManager.spawnBoss(loc, bossId)
-                } catch (e: Exception) {
-                    plugin.logger.warning("Error en coordenada boss fija: $randomLocStr")
-                }
+                return locations[ThreadLocalRandom.current().nextInt(locations.size)]
             }
         }
-        return false
+        return null
     }
 }
