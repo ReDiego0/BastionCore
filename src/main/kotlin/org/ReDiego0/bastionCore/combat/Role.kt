@@ -20,16 +20,16 @@ enum class Role(
         26.0
     ),
 
-    CAZADOR(
-        "cazador",
-        "Cazador",
+    RASTREADOR(
+        "rastreador",
+        "Rastreador",
         "Especialista en rango y trampas. Mantienen la presión a distancia.",
         20.0
     ),
 
-    ASALTANTE(
-        "asaltante",
-        "Asaltante",
+    CENTINELA(
+        "centinela",
+        "Centinela",
         "Especialista en daño explosivo y movilidad. Alto riesgo, alta recompensa.",
         18.0
     );

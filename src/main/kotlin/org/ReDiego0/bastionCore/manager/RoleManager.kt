@@ -17,8 +17,8 @@ class RoleManager(private val plugin: BastionCore) {
     fun activateUltimate(player: Player, role: Role) {
         when (role) {
             Role.VANGUARDIA -> activateVanguard(player)
-            Role.CAZADOR -> activateHunter(player)
-            Role.ASALTANTE -> activateRaider(player)
+            Role.RASTREADOR -> activateHunter(player)
+            Role.CENTINELA -> activateRaider(player)
             Role.RECLUTA -> activateRecruit(player)
         }
     }

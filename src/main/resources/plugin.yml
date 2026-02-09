@@ -25,7 +25,7 @@ commands:
     permission: bastion.player
   clase:
     description: Cambiar de clase
-    permission: bastion.player
+    permission: bastion.admin
   party:
     description: Crear escuadrón
     permission: bastion.player
