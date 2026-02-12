@@ -35,14 +35,17 @@ class CombatListener(private val plugin: BastionCore) : Listener {
         if (plugin.combatManager.isBlocking(victim.uniqueId)) {
             event.isCancelled = true
             event.damage = 0.0
-            //plugin.combatManager.spearHandler.triggerExplosiveCounter(victim)
+
+            victim.world.playSound(victim.location, Sound.ITEM_SHIELD_BLOCK, 1f, 0.8f)
+            victim.world.spawnParticle(Particle.CRIT, victim.location.add(0.0, 1.0, 0.0), 5)
             return
         }
 
         if (plugin.combatManager.isParrying(victim.uniqueId)) {
             event.isCancelled = true
             event.damage = 0.0
-            plugin.combatManager.katanaHandler.triggerParryCounter(victim)
+            val attacker = event.damager as? LivingEntity
+            plugin.combatManager.katanaHandler.triggerParryCounter(victim, attacker)
             return
         }
     }
