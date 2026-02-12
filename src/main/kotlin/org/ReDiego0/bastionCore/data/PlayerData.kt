@@ -8,7 +8,7 @@ import org.bukkit.entity.Player
 import java.util.*
 
 data class PlayerData(val uuid: UUID, val name: String) {
-    var currentRole: Role = Role.RECLUTA
+    var currentRole: Role = Role.VAGABUNDO
     var ultimateCharge: Double = 0.0
     var hunterRank: Int = 1
     var guildPoints: Int = 0
