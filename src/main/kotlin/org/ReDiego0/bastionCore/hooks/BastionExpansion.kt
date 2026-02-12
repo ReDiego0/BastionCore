@@ -52,6 +52,23 @@ class BastionExpansion(private val plugin: BastionCore) : PlaceholderExpansion()
             return "$percent%"
         }
 
+        if (params.equals("faction_level", ignoreCase = true)) {
+            return data.factionLevel.toString()
+        }
+
+        if (params.equals("faction_xp", ignoreCase = true)) {
+            return decimalFormat.format(data.factionXp)
+        }
+
+        if (params.equals("faction_xp_percent", ignoreCase = true)) {
+            val percent = (data.factionXp / 100.0).coerceIn(0.0, 1.0)
+            return decimalFormat.format(percent * 100)
+        }
+
+        if (params.equals("faction_name", ignoreCase = true)) {
+            return data.faction.displayName
+        }
+
         if (params.equals("ultimate_charge", ignoreCase = true)) {
             return data.ultimateCharge.toInt().toString()
         }
