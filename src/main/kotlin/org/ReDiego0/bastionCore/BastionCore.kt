@@ -3,6 +3,7 @@ package org.ReDiego0.bastionCore
 import net.milkbowl.vault.economy.Economy
 import org.ReDiego0.bastionCore.combat.CombatManager
 import org.ReDiego0.bastionCore.data.PlayerDataManager
+import org.ReDiego0.bastionCore.inventory.FactionGUI
 import org.ReDiego0.bastionCore.listener.*
 import org.ReDiego0.bastionCore.manager.*
 import org.ReDiego0.bastionCore.task.CitadelTask
@@ -30,6 +31,8 @@ class BastionCore : JavaPlugin() {
     lateinit var worldGuardManager: WorldGuardManager
     lateinit var partyManager: PartyManager
     lateinit var roleManager: RoleManager
+    lateinit var factionGUI: FactionGUI
+    lateinit var shopManager: ShopManager
 
     var economy: Economy? = null
 
@@ -52,6 +55,8 @@ class BastionCore : JavaPlugin() {
         gameManager = GameManager(this)
         partyManager = PartyManager(this)
         roleManager = RoleManager(this)
+        shopManager = ShopManager(this)
+        shopManager.loadShops()
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -71,6 +76,7 @@ class BastionCore : JavaPlugin() {
         getCommand("tablon")?.setExecutor(org.ReDiego0.bastionCore.command.BoardCommand(this))
         getCommand("party")?.setExecutor(org.ReDiego0.bastionCore.command.PartyCommand(this))
         getCommand("clase")?.setExecutor(org.ReDiego0.bastionCore.command.ClassCommand(this))
+        getCommand("faccion")?.setExecutor(org.ReDiego0.bastionCore.command.FactionCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
         TrackingTask(this).runTaskTimer(this, 20L, 2L)

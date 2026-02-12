@@ -29,6 +29,9 @@ commands:
   party:
     description: Crear escuadrón
     permission: bastion.player
+  faccion:
+    description: Menu de facciones
+    permission: bastion.player
 
 permissions:
   bastion.admin:

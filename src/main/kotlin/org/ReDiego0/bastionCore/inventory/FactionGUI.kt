@@ -9,15 +9,16 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 class FactionGUI(private val plugin: BastionCore) {
+
     fun openFactionHub(player: Player) {
         val data = plugin.playerDataManager.getData(player.uniqueId) ?: return
         if (data.faction == Faction.NONE) {
-            openJoinMenu(player, data.faction)
+            player.sendMessage("§cError: No tienes facción para ver el Dashboard.")
             return
         }
 
         val holder = FactionHolder(FactionMenuType.DASHBOARD)
-        val title = "Faction Dashboard" //":offset_-8::faction_dashboard:"
+        val title = "Faction Dashboard" //":offset_-8::faction_${data.faction.displayName}:"
         val inv = Bukkit.createInventory(holder, 54, title)
 
         inv.setItem(20, createButton(
@@ -87,7 +88,14 @@ class FactionGUI(private val plugin: BastionCore) {
             )
             inv.setItem(22, lockItem)
         } else {
-            inv.setItem(22, createButton(Material.CHEST, "§aItems de Nivel $safeLevel", listOf("§7(Aquí irían los items en venta)")))
+            val shopItems = plugin.shopManager.getItemsFor(data.faction, safeLevel)
+            if (shopItems.isEmpty()) {
+                inv.setItem(22, createButton(Material.BARRIER, "§cSin Stock", listOf("§7Esta tienda está vacía por ahora.")))
+            } else {
+                for (shopItem in shopItems) {
+                    inv.setItem(shopItem.slot, shopItem.item)
+                }
+            }
         }
 
         if (safeLevel > 1) {

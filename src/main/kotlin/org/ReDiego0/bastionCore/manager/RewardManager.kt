@@ -1,6 +1,8 @@
 package org.ReDiego0.bastionCore.manager
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.combat.ActiveMission
+import org.ReDiego0.bastionCore.data.Faction
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
@@ -38,6 +40,18 @@ object RewardManager {
                 org.bukkit.Bukkit.getConsoleSender(),
                 cmd.replace("%player%", player.name)
             )
+        }
+    }
+
+    fun handleMissionEnd(player: Player, mission: ActiveMission, isFaction: Boolean) {
+        val data = BastionCore.instance.playerDataManager.getData(player.uniqueId) ?: return
+
+        grantReward(player, mission.rewardGold, emptyList(), emptyList(), 100)
+
+        if (isFaction && data.faction != Faction.NONE) {
+            val factionXp = 250
+            data.addFactionXp(factionXp)
+            player.sendMessage("${data.faction.color}+ $factionXp Reputación con ${data.faction.displayName}")
         }
     }
 }

@@ -1,0 +1,25 @@
+AKAI_REN:
+  1: # Nivel de tienda 1
+    katana_novata:
+      slot: 20
+      item: "bastion:starter_katana" # ID de ItemsAdder o Material Vanilla
+      price: 500
+      stock: -1 # -1 = Infinito
+    pocion_fuerza:
+      slot: 22
+      item: "POTION"
+      nbt: "{Potion:'minecraft:strength'}" # Soporte básico NBT vainilla
+      price: 150
+
+  5: # Nivel de tienda 5 (Endgame)
+    armadura_shogun:
+      slot: 22
+      item: "bastion:shogun_chestplate"
+      price: 50000
+
+AOI_TSUKI:
+  1:
+    naginata_novata:
+      slot: 20
+      item: "bastion:starter_naginata"
+      price: 500

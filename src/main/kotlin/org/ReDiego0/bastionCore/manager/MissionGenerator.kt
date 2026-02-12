@@ -1,8 +1,10 @@
 package org.ReDiego0.bastionCore.manager
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.data.Faction
 import org.ReDiego0.bastionCore.utils.ContractUtils
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.concurrent.ThreadLocalRandom
@@ -86,6 +88,33 @@ class MissionGenerator(private val plugin: BastionCore) {
         pdc.set(ContractUtils.DATA_REQUIRED_AMOUNT_KEY, PersistentDataType.INTEGER, amount)
         pdc.set(ContractUtils.DATA_SPAWN_RADIUS_KEY, PersistentDataType.INTEGER, radius)
         pdc.set(ContractUtils.DATA_TEMPLATE_ID_KEY, PersistentDataType.STRING, templateId)
+
+        item.itemMeta = meta
+        return item
+    }
+
+    fun generateFactionMission(player: Player): ItemStack? {
+        val data = plugin.playerDataManager.getData(player.uniqueId) ?: return null
+        if (data.faction == Faction.NONE) return null
+
+        val config = ContractUtils.getConfig()
+        val factionPath = "faction_templates"
+
+        val factionMissions = config.getConfigurationSection(factionPath)
+            ?.getKeys(false)
+            ?.filter { config.getString("$factionPath.$it.faction_id") == data.faction.name }
+            ?: return null
+
+        if (factionMissions.isEmpty()) return null
+
+        val templateId = factionMissions.random()
+        val path = "$factionPath.$templateId"
+
+        val item = generateMission("$factionPath.$templateId") ?: return null
+        val meta = item.itemMeta
+        val pdc = meta.persistentDataContainer
+
+        pdc.set(org.bukkit.NamespacedKey(plugin, "is_faction_mission"), org.bukkit.persistence.PersistentDataType.BYTE, 1)
 
         item.itemMeta = meta
         return item
