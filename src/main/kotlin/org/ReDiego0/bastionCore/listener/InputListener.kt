@@ -13,15 +13,24 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 class InputListener(
     private val plugin: BastionCore,
     private val combatManager: CombatManager
 ) : Listener {
 
+    private val dropCooldown = ConcurrentHashMap<UUID, Long>()
+
     @EventHandler
     fun onInteract(event: PlayerInteractEvent) {
         val player = event.player
+        val lastDrop = dropCooldown.getOrDefault(player.uniqueId, 0L)
+        if (System.currentTimeMillis() - lastDrop < 300) {
+            return
+        }
+
         if (!player.world.name.startsWith("inst_")) return
         if (event.hand != EquipmentSlot.HAND) return
 
@@ -62,7 +71,9 @@ class InputListener(
         val weaponType = ItemTags.getWeaponType(itemStack)
         if (weaponType == WeaponType.NONE) return
 
-        event.isCancelled = true // No soltar el arma
+        event.isCancelled = true
+        dropCooldown[player.uniqueId] = System.currentTimeMillis()
+
         if (player.world.name == plugin.citadelWorldName) return
         combatManager.handleWeaponPrimary(player, weaponType)
     }

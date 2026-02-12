@@ -50,7 +50,7 @@ class YumiHandler(private val plugin: BastionCore) {
                 val eyeLoc = player.eyeLocation
                 val target = eyeLoc.clone().add(eyeLoc.direction.multiply(2))
 
-                player.world.spawnParticle(Particle.FLAME, target, 2, 0.1, 0.1, 0.1, 0.05)
+                player.world.spawnParticle(Particle.FLAME, target, 1, 0.1, 0.1, 0.1, 0.05)
                 player.world.spawnParticle(Particle.PORTAL, player.location.add(0.0, 1.0, 0.0), 5, 0.5, 0.5, 0.5, 1.0)
 
                 if (chargeTicks % 5 == 0) {
@@ -97,12 +97,12 @@ class YumiHandler(private val plugin: BastionCore) {
 
                     val point = start.clone().add(dir.clone().multiply(distance))
 
-                    player.world.spawnParticle(Particle.LAVA, point, 1, 0.0, 0.0, 0.0, 0.0)
+                    player.world.spawnParticle(Particle.LAVA, point, 1)
                     player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, point, 2, 0.1, 0.1, 0.1, 0.02)
-                    player.world.spawnParticle(Particle.SONIC_BOOM, point, 1, 0.0, 0.0, 0.0, 0.0)
+                    player.world.spawnParticle(Particle.SONIC_BOOM, point, 1)
 
                     if (point.block.type.isSolid) {
-                        player.world.createExplosion(point, 2f, false)
+                        player.world.createExplosion(point, 2f, false, false)
                         player.world.spawnParticle(Particle.FLASH, point, 5)
                         this.cancel()
                         return
