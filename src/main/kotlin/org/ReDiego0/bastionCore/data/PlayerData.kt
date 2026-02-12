@@ -12,11 +12,18 @@ data class PlayerData(val uuid: UUID, val name: String) {
     var ultimateCharge: Double = 0.0
     var hunterRank: Int = 1
     var guildPoints: Int = 0
+
+    var faction: Faction = Faction.NONE
+    var factionLevel: Int = 1
+    var factionXp: Int = 0
+    var lastFactionJoin: Long = 0 // todo: subirlo a yaml y sql
+
     var lastStaminaUsage: Long = System.currentTimeMillis()
 
     val reputationProgress: Float
         get() = RankUtils.getProgress(guildPoints, hunterRank)
-
+    val factionProgress: Float
+        get() = RankUtils.getFactionProgress(factionXp, factionLevel)
 
     fun addCharge(player: Player, amount: Double): Boolean {
         val wasFull = ultimateCharge >= 100.0
@@ -49,6 +56,43 @@ data class PlayerData(val uuid: UUID, val name: String) {
     fun addGuildPoints(amount: Int) {
         guildPoints += amount
         checkLevelUp()
+    }
+
+    fun joinFaction(player: Player, newFaction: Faction) {
+        this.faction = newFaction
+        this.factionLevel = 1
+        this.factionXp = 0
+
+        player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 0.5f)
+        player.sendTitle(newFaction.color + newFaction.displayName, "§7Has jurado lealtad.", 10, 70, 20)
+    }
+
+    fun addFactionXp(amount: Int) {
+        if (faction == Faction.NONE) return
+        if (factionLevel >= 5) return
+
+        factionXp += amount
+        checkFactionLevelUp()
+    }
+
+    private fun checkFactionLevelUp() {
+        val player = Bukkit.getPlayer(uuid) ?: return
+        val req = RankUtils.getFactionRequiredXp(factionLevel)
+
+        if (factionXp >= req) {
+            factionXp -= req
+            factionLevel++
+
+            player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f)
+            player.sendMessage("${faction.color}▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
+            player.sendMessage("${faction.color}   ¡ASCENSO DE FACCIÓN!")
+            player.sendMessage("   §fNivel Alcanzado: §e$factionLevel")
+            player.sendMessage("   §7Nueva tienda disponible en la ciudadela.")
+            player.sendMessage("${faction.color}▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
+            if (factionLevel < 5 && factionXp >= RankUtils.getFactionRequiredXp(factionLevel)) {
+                checkFactionLevelUp()
+            }
+        }
     }
 
     private fun checkLevelUp() {

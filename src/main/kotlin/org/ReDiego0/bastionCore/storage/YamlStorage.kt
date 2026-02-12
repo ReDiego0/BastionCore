@@ -1,6 +1,8 @@
 package org.ReDiego0.bastionCore.storage
 
 import org.ReDiego0.bastionCore.BastionCore
+import org.ReDiego0.bastionCore.combat.Role
+import org.ReDiego0.bastionCore.data.Faction
 import org.ReDiego0.bastionCore.data.PlayerData
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
@@ -27,6 +29,12 @@ class YamlStorage(private val plugin: BastionCore) : DataStorage {
             val config = YamlConfiguration.loadConfiguration(file)
             data.hunterRank = config.getInt("rank", 1)
             data.guildPoints = config.getInt("xp", 0)
+            data.currentRole = Role.fromId(config.getString("role")!!)
+
+            val factionId = config.getString("faction_id", "none")!!
+            data.faction = Faction.fromId(factionId)
+            data.factionLevel = config.getInt("faction_level", 1)
+            data.factionXp = config.getInt("faction_xp", 0)
         }
         return data
     }
@@ -38,6 +46,10 @@ class YamlStorage(private val plugin: BastionCore) : DataStorage {
         config.set("name", data.name)
         config.set("rank", data.hunterRank)
         config.set("xp", data.guildPoints)
+        config.set("role", data.currentRole.id)
+        config.set("faction_id", data.faction.id)
+        config.set("faction_level", data.factionLevel)
+        config.set("faction_xp", data.factionXp)
 
         try {
             config.save(file)
