@@ -70,6 +70,7 @@ class BastionCore : JavaPlugin() {
         server.pluginManager.registerEvents(BoardListener(this), this)
         server.pluginManager.registerEvents(GameListener(this), this)
         server.pluginManager.registerEvents(InstanceProtectionListener(this), this)
+        server.pluginManager.registerEvents(FactionListener(this), this)
 
         getCommand("bastiondebug")?.setExecutor(org.ReDiego0.bastionCore.command.DebugCommand(this))
         getCommand("baul")?.setExecutor(org.ReDiego0.bastionCore.command.VaultCommand(this))
