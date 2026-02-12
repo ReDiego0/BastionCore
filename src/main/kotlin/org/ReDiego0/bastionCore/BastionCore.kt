@@ -55,6 +55,7 @@ class BastionCore : JavaPlugin() {
         gameManager = GameManager(this)
         partyManager = PartyManager(this)
         roleManager = RoleManager(this)
+        factionGUI = FactionGUI(this)
         shopManager = ShopManager(this)
         shopManager.loadShops()
 

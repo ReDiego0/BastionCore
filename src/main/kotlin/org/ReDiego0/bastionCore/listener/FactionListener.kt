@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.inventory.ItemStack
 
 class FactionListener(private val plugin: BastionCore) : Listener {
@@ -17,9 +18,17 @@ class FactionListener(private val plugin: BastionCore) : Listener {
     private val gui = org.ReDiego0.bastionCore.inventory.FactionGUI(plugin)
 
     @EventHandler
+    fun onGuiDrag(e: InventoryDragEvent) {
+        if (e.inventory.holder is FactionHolder) {
+            e.isCancelled = true
+        }
+    }
+
+    @EventHandler
     fun onGuiClick(e: InventoryClickEvent) {
         if (e.inventory.holder !is FactionHolder) return
         e.isCancelled = true
+        if (e.clickedInventory == null) return
 
         val player = e.whoClicked as? Player ?: return
         val holder = e.inventory.holder as FactionHolder
