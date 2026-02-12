@@ -39,6 +39,7 @@ class InputListener(
         }
 
         if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
+            event.isCancelled = true
             combatManager.handleRightClick(player, weaponType)
         }
     }
@@ -52,8 +53,6 @@ class InputListener(
         combatManager.handleDirectionalDash(player)
     }
 
-
-
     @EventHandler
     fun onDrop(event: PlayerDropItemEvent) {
         val player = event.player
@@ -61,12 +60,10 @@ class InputListener(
 
         val itemStack = event.itemDrop.itemStack
         val weaponType = ItemTags.getWeaponType(itemStack)
-
         if (weaponType == WeaponType.NONE) return
 
-        event.isCancelled = true
+        event.isCancelled = true // No soltar el arma
         if (player.world.name == plugin.citadelWorldName) return
-
         combatManager.handleWeaponPrimary(player, weaponType)
     }
 
