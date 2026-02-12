@@ -32,19 +32,19 @@ class DebugCommand(private val plugin: BastionCore) : CommandExecutor {
                     val type = WeaponType.valueOf(args[1].uppercase())
 
                     val material = when (type) {
-                        WeaponType.GREATSWORD -> Material.NETHERITE_SWORD
-                        WeaponType.HAMMER -> Material.MACE
-                        WeaponType.SPEAR -> Material.DIAMOND_SWORD
-                        WeaponType.BOW -> Material.BOW
+                        WeaponType.NODACHI -> Material.NETHERITE_SWORD
                         WeaponType.KATANA -> Material.IRON_SWORD
-                        WeaponType.DUAL_BLADES -> Material.GOLDEN_SWORD
+                        WeaponType.YUMI -> Material.BOW
+                        WeaponType.NAGINATA -> Material.DIAMOND_SWORD
+                        WeaponType.TEKKO -> Material.IRON_NUGGET
+                        WeaponType.KAMA -> Material.GOLDEN_HOE
                         else -> Material.WOODEN_SWORD
                     }
 
                     val item = ItemStack(material)
                     val meta = item.itemMeta
                     meta.setDisplayName("§6${type.displayName} §7(Debug)")
-                    meta.lore = listOf("§7Item de prueba del desarrollador.")
+                    meta.lore = listOf("§7Prototipo BastionCore")
                     item.itemMeta = meta
 
                     val taggedItem = ItemTags.setWeaponType(item, type)

@@ -35,7 +35,7 @@ class CombatListener(private val plugin: BastionCore) : Listener {
         if (plugin.combatManager.isBlocking(victim.uniqueId)) {
             event.isCancelled = true
             event.damage = 0.0
-            plugin.combatManager.spearHandler.triggerExplosiveCounter(victim)
+            //plugin.combatManager.spearHandler.triggerExplosiveCounter(victim)
             return
         }
 
@@ -149,11 +149,11 @@ class CombatListener(private val plugin: BastionCore) : Listener {
     private fun updateOffhand(player: Player, mainHandItem: ItemStack?) {
         val weaponType = ItemTags.getWeaponType(mainHandItem)
 
-        if (weaponType == WeaponType.DUAL_BLADES) {
+        if (weaponType == WeaponType.TEKKO) {
             val customStack = CustomStack.byItemStack(mainHandItem) ?: return
             val id = customStack.namespacedID
 
-            val offhandId = id.replace("dagger", "dagger_offhand")
+            val offhandId = id + "_offhand"
 
             val offhandStack = CustomStack.getInstance(offhandId)?.itemStack
 

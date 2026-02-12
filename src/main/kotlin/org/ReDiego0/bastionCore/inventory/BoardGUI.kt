@@ -1,5 +1,6 @@
 package org.ReDiego0.bastionCore.inventory
 
+import dev.lone.itemsadder.api.CustomStack
 import org.ReDiego0.bastionCore.BastionCore
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -10,18 +11,17 @@ class BoardGUI(private val plugin: BastionCore) {
 
     fun openBoard(player: Player) {
         val holder = MissionBoardHolder()
-        val inv = Bukkit.createInventory(holder, 45, "§8Tablón de Contratos")
+        val inv = Bukkit.createInventory(holder, 45, ":offset_-48::tablon_misiones:")
+        val customStack = CustomStack.getInstance("gui:invisible")
 
-        val filler = ItemStack(Material.GRAY_STAINED_GLASS_PANE)
-        val meta = filler.itemMeta
-        meta.setDisplayName(" ")
-        filler.itemMeta = meta
+        val clockItem = if (customStack != null) {
+            customStack.itemStack.clone()
+        } else {
+            plugin.logger.warning("No se encontró 'gui:invisible' en ItemsAdder.")
+            ItemStack(Material.CLOCK)
+        }
 
-        for (i in 0..8) inv.setItem(i, filler)
-        for (i in 36..44) inv.setItem(i, filler)
-
-        val clock = ItemStack(Material.CLOCK)
-        val clockMeta = clock.itemMeta
+        val clockMeta = clockItem.itemMeta
         val secondsLeft = plugin.boardCycleManager.getTimeRemainingSeconds()
         val minutes = secondsLeft / 60
 
@@ -33,8 +33,9 @@ class BoardGUI(private val plugin: BastionCore) {
             "§7Los contratos se renuevan",
             "§7periódicamente."
         )
-        clock.itemMeta = clockMeta
-        inv.setItem(4, clock)
+        clockItem.itemMeta = clockMeta
+
+        inv.setItem(4, clockItem)
 
         val missions = plugin.boardCycleManager.getAvailableMissions()
 

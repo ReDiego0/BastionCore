@@ -4,32 +4,36 @@ import org.ReDiego0.bastionCore.BastionCore
 import org.ReDiego0.bastionCore.combat.Role
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Mob
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.util.Vector
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.random.Random
 
 class RoleManager(private val plugin: BastionCore) {
 
     fun activateUltimate(player: Player, role: Role) {
         when (role) {
-            Role.VANGUARDIA -> activateVanguard(player)
-            Role.RASTREADOR -> activateHunter(player)
-            Role.CENTINELA -> activateRaider(player)
-            Role.RECLUTA -> activateRecruit(player)
+            Role.SAMURAI -> activateSamurai(player)
+            Role.ORACULO -> activateOracle(player)
+            Role.KENSAI -> activateKensai(player)
+            Role.VAGABUNDO -> activateVagrant(player)
         }
     }
 
-    private fun activateVanguard(player: Player) {
-        player.world.playSound(player.location, Sound.ITEM_TOTEM_USE, 1f, 0.8f)
+    private fun activateSamurai(player: Player) {
+        player.world.playSound(player.location, Sound.ITEM_SHIELD_BLOCK, 1f, 0.5f)
         player.world.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.5f, 0.5f)
+        player.world.playSound(player.location, Sound.ENTITY_IRON_GOLEM_HURT, 1f, 0.1f)
 
-        player.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 300, 3))
-        player.addPotionEffect(PotionEffect(PotionEffectType.ABSORPTION, 300, 9))
-        player.addPotionEffect(PotionEffect(PotionEffectType.FIRE_RESISTANCE, 300, 0))
+        player.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 160, 4))
+        player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 160, 2))
+        player.addPotionEffect(PotionEffect(PotionEffectType.ABSORPTION, 160, 9))
 
         for (e in player.world.getNearbyEntities(player.location, 20.0, 10.0, 20.0)) {
             if (e is Mob) {
@@ -38,103 +42,134 @@ class RoleManager(private val plugin: BastionCore) {
             }
         }
 
-        player.sendMessage("§6🛡 ¡BASTIÓN INQUEBRANTABLE!")
-        broadcastNearby(player, "§e${player.name} está protegiendo al equipo.")
+        player.sendMessage("§6🛡 ¡DEFENSA ABSOLUTA!")
+        broadcastNearby(player, "§e${player.name} se ha convertido en una fortaleza.")
 
         object : BukkitRunnable() {
             var t = 0
             override fun run() {
-                if (!player.isOnline || t >= 150) {
+                if (!player.isOnline || t >= 160) {
                     this.cancel()
                     return
                 }
-                t += 2
-                val radius = 3.0
-                for (i in 0..360 step 30) {
-                    val rad = Math.toRadians(i.toDouble())
+
+                val loc = player.location
+                val radius = 3.5
+
+                for (i in 0 until 3) {
+                    val angle = ((t * 10 + i * 120) % 360).toDouble()
+                    val rad = Math.toRadians(angle)
                     val x = cos(rad) * radius
                     val z = sin(rad) * radius
-                    player.world.spawnParticle(Particle.END_ROD, player.location.add(x, 1.0, z), 1, 0.0, 0.0, 0.0, 0.0)
+
+                    player.world.spawnParticle(Particle.CRIT, loc.clone().add(x, 0.5 + (t % 20) * 0.1, z), 1, 0.0, 0.0, 0.0, 0.0)
+                    player.world.spawnParticle(Particle.FALLING_DUST, loc.clone().add(x*0.5, 1.0, z*0.5), 1, 0.0, 0.0, 0.0, 0.0, player.location.block.blockData)
                 }
-            }
-        }.runTaskTimer(plugin, 0L, 2L)
-    }
 
-    private fun activateHunter(player: Player) {
-        player.world.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.8f, 1f)
-        player.world.playSound(player.location, Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1f, 0.5f)
-
-        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 300, 1))
-        player.addPotionEffect(PotionEffect(PotionEffectType.NIGHT_VISION, 600, 0))
-
-        var count = 0
-        for (e in player.world.getNearbyEntities(player.location, 50.0, 15.0, 50.0)) {
-            if (e is Mob) {
-                e.addPotionEffect(PotionEffect(PotionEffectType.GLOWING, 200, 0))
-                e.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 200, 4))
-                e.addPotionEffect(PotionEffect(PotionEffectType.WEAKNESS, 200, 1))
-                count++
-            }
-        }
-
-        player.sendMessage("§a🏹 ¡OJO DEL DEPREDADOR! ($count objetivos marcados)")
-
-        object : BukkitRunnable() {
-            var r = 0.0
-            override fun run() {
-                if (r > 15.0) {
-                    this.cancel()
-                    return
-                }
-                r += 0.5
-                for (i in 0..360 step 10) {
-                    val rad = Math.toRadians(i.toDouble())
-                    val x = cos(rad) * r
-                    val z = sin(rad) * r
-                    player.world.spawnParticle(Particle.WITCH, player.location.add(x, 0.5, z), 1, 0.0, 0.0, 0.0, 0.0)
-                }
+                t += 2
             }
         }.runTaskTimer(plugin, 0L, 1L)
     }
 
-    private fun activateRaider(player: Player) {
-        player.world.playSound(player.location, Sound.ENTITY_WITHER_SPAWN, 0.5f, 1.5f)
-        player.world.playSound(player.location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2f)
+    private fun activateOracle(player: Player) {
+        player.world.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f)
+        player.world.playSound(player.location, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 2f, 0.5f)
 
-        player.addPotionEffect(PotionEffect(PotionEffectType.STRENGTH, 240, 2))
-        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 240, 2))
-        player.addPotionEffect(PotionEffect(PotionEffectType.HASTE, 240, 2))
+        val allies = player.world.getNearbyPlayers(player.location, 20.0)
+        allies.add(player)
 
-        player.sendMessage("§c⚡ ¡SOBRECARGA DE ADRENALINA!")
+        for (ally in allies) {
+            ally.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 200, 2))
+            ally.addPotionEffect(PotionEffect(PotionEffectType.REGENERATION, 100, 2))
+            ally.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 60, 4))
+
+            ally.sendMessage("§b👁 Visión Futura otorgada por ${player.name}")
+            ally.playSound(ally.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 2f)
+        }
+
+        player.sendMessage("§b👁 ¡EL DESTINO HA SIDO REESCRITO!")
 
         object : BukkitRunnable() {
-            var t = 0
+            var radius = 0.5
             override fun run() {
-                if (!player.isOnline || t >= 120) { // 12s
+                if (radius > 15.0) {
                     this.cancel()
                     return
                 }
-                t += 2
 
-                player.world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, player.location.add(0.0, 1.0, 0.0), 2, 0.2, 0.5, 0.2, 0.05)
-                player.world.spawnParticle(Particle.ANGRY_VILLAGER, player.location.add(0.0, 2.0, 0.0), 1, 0.3, 0.2, 0.3, 0.0)
+                val loc = player.location.add(0.0, 1.0, 0.0)
+                for (i in 0..360 step 15) {
+                    val rad = Math.toRadians(i.toDouble())
+                    val x = cos(rad) * radius
+                    val z = sin(rad) * radius
 
-                if (t % 10 == 0) {
-                    player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1f, 0.5f)
+                    player.world.spawnParticle(Particle.END_ROD, loc.clone().add(x, 0.0, z), 1, 0.0, 0.0, 0.0, 0.0)
+                    if (i % 30 == 0) {
+                        player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, loc.clone().add(x, 0.0, z), 1, 0.0, 0.05, 0.0, 0.0)
+                    }
                 }
+                radius += 0.75
             }
-        }.runTaskTimer(plugin, 0L, 2L)
+        }.runTaskTimer(plugin, 0L, 1L)
     }
 
-    private fun activateRecruit(player: Player) {
-        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+    private fun activateKensai(player: Player) {
+        val targets = player.world.getNearbyEntities(player.location, 15.0, 10.0, 15.0)
+            .filterIsInstance<LivingEntity>()
+            .filter { it != player && it !is Player }
 
+        if (targets.isEmpty()) {
+            player.sendMessage("§cNo hay objetivos para el Corte Dimensional.")
+            plugin.playerDataManager.getData(player.uniqueId)?.ultimateCharge = 100.0
+            return
+        }
+
+        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, 40, 0, false, false))
+        player.world.playSound(player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.5f)
+        player.world.spawnParticle(Particle.CLOUD, player.location, 20, 0.5, 1.0, 0.5, 0.1)
+
+        player.sendMessage("§3⚔ ¡CORTE DIMENSIONAL!")
+
+        object : BukkitRunnable() {
+            var step = 0
+            override fun run() {
+                if (step >= 10) {
+                    player.world.playSound(player.location, Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f)
+                    player.world.playSound(player.location, Sound.ITEM_TRIDENT_THUNDER, 1f, 2f)
+                    this.cancel()
+                    return
+                }
+
+                for (target in targets) {
+                    if (target.isValid) {
+                        target.world.spawnParticle(Particle.SWEEP_ATTACK, target.location.add(0.0, 1.0, 0.0), 1)
+                        val rX = (Random.nextDouble() - 0.5) * 2
+                        val rY = (Random.nextDouble() - 0.5) * 2
+                        val rZ = (Random.nextDouble() - 0.5) * 2
+                        target.world.spawnParticle(Particle.CRIT, target.location.add(rX, 1.0 + rY, rZ), 3)
+                        target.world.playSound(target.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.5f)
+
+                        if (step == 9) {
+                            target.damage(50.0, player)
+                            target.world.spawnParticle(Particle.FLASH, target.location, 1)
+                        } else {
+                            target.velocity = Vector(0, 0, 0)
+                        }
+                    }
+                }
+                step++
+            }
+        }.runTaskTimer(plugin, 5L, 2L)
+    }
+
+    private fun activateVagrant(player: Player) {
+        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
         player.health = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
         player.foodLevel = 20
         player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 100, 1))
 
         player.world.spawnParticle(Particle.HEART, player.location.add(0.0, 2.0, 0.0), 10, 0.5, 0.5, 0.5)
-        player.sendMessage("§f❤ ¡Salud restaurada!")
+        player.sendMessage("§f❤ Has recuperado el aliento.")
     }
 
     private fun broadcastNearby(player: Player, msg: String) {

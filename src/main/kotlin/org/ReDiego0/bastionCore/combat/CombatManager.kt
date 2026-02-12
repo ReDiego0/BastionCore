@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 class CombatManager(private val plugin: BastionCore) {
 
-    val greatswordHandler = GreatswordHandler(plugin)
-    val spearHandler = SpearHandler(plugin)
-    val hammerHandler = HammerHandler(plugin)
     val katanaHandler = KatanaHandler(plugin)
-    val dualBladesHandler = DualBladesHandler(plugin)
-    val bowHandler = BowHandler(plugin)
+    val nodachiHandler = NodachiHandler(plugin)
+    val yumiHandler = YumiHandler(plugin)
+    val naginataHandler = NaginataHandler(plugin)
+    val tekkoHandler = TekkoHandler(plugin)
+    val kamaHandler = KamaHandler(plugin)
 
     private val blockingPlayers = ConcurrentHashMap<UUID, Long>()
     private val parryPlayers = ConcurrentHashMap<UUID, Long>()
@@ -25,12 +25,12 @@ class CombatManager(private val plugin: BastionCore) {
         if (plugin.cooldownManager.checkAndNotify(player, CooldownManager.CooldownType.WEAPON_SECONDARY)) return
 
         when (weaponType) {
-            WeaponType.GREATSWORD -> greatswordHandler.handleRightClick(player)
-            WeaponType.SPEAR -> spearHandler.handleRightClick(player)
-            WeaponType.HAMMER -> hammerHandler.handleRightClick(player)
             WeaponType.KATANA -> katanaHandler.handleRightClick(player)
-            WeaponType.DUAL_BLADES -> dualBladesHandler.handleRightClick(player)
-            WeaponType.BOW -> bowHandler.handleRightClick(player)
+            WeaponType.NODACHI -> nodachiHandler.handleRightClick(player)
+            WeaponType.YUMI -> yumiHandler.handleRightClick(player)
+            WeaponType.NAGINATA -> naginataHandler.handleRightClick(player)
+            WeaponType.TEKKO -> tekkoHandler.handleRightClick(player)
+            WeaponType.KAMA -> kamaHandler.handleRightClick(player)
             else -> {}
         }
     }
@@ -45,12 +45,12 @@ class CombatManager(private val plugin: BastionCore) {
         }
 
         when (weaponType) {
-            WeaponType.GREATSWORD -> greatswordHandler.handlePrimary(player)
-            WeaponType.SPEAR -> spearHandler.handlePrimary(player)
-            WeaponType.HAMMER -> hammerHandler.handlePrimary(player)
             WeaponType.KATANA -> katanaHandler.handlePrimary(player)
-            WeaponType.DUAL_BLADES -> dualBladesHandler.handlePrimary(player)
-            WeaponType.BOW -> bowHandler.handlePrimary(player)
+            WeaponType.NODACHI -> nodachiHandler.handlePrimary(player)
+            WeaponType.YUMI -> yumiHandler.handlePrimary(player)
+            WeaponType.NAGINATA -> naginataHandler.handlePrimary(player)
+            WeaponType.TEKKO -> tekkoHandler.handlePrimary(player)
+            WeaponType.KAMA -> kamaHandler.handlePrimary(player)
             else -> {}
         }
     }
@@ -110,6 +110,7 @@ class CombatManager(private val plugin: BastionCore) {
 
         val velocity = player.velocity
         val horizontalVelocity = velocity.clone().setY(0)
+
         if (horizontalVelocity.lengthSquared() < 0.01) {
             val backDir = player.location.direction.clone().setY(0).normalize().multiply(-1)
             performDash(player, backDir, "§7Evasión Atrás", 1.0)
@@ -118,7 +119,6 @@ class CombatManager(private val plugin: BastionCore) {
 
         val targetDir = horizontalVelocity.normalize()
         val playerDir = player.location.direction.clone().setY(0).normalize()
-
         val dot = targetDir.dot(playerDir)
 
         var dashType = "Dash"
@@ -143,10 +143,10 @@ class CombatManager(private val plugin: BastionCore) {
         performDash(player, targetDir, dashType, power)
     }
 
-    private fun performDash(player: Player, direction: Vector, name: String, power: Double = 1.5) {
+    private fun performDash(player: Player, direction: Vector, name: String, power: Double) {
         plugin.cooldownManager.setCooldown(player.uniqueId, CooldownManager.CooldownType.DASH, 2.0)
         player.velocity = direction.multiply(power).setY(0.4)
-        player.noDamageTicks = 15
+        player.noDamageTicks = 20
         player.world.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f)
         player.world.spawnParticle(org.bukkit.Particle.CLOUD, player.location, 5, 0.2, 0.1, 0.2, 0.05)
         player.sendActionBar(name)

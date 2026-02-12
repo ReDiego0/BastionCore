@@ -7,7 +7,6 @@ import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
-
 object ItemTags {
 
     private val WEAPON_KEY = NamespacedKey(BastionCore.instance, "weapon_type")
@@ -38,31 +37,23 @@ object ItemTags {
         val customStack = CustomStack.byItemStack(item)
         if (customStack != null) {
             val id = customStack.namespacedID.lowercase()
-
-            return when {
-                id.contains("greatsword") || id.contains("gran_espada") -> WeaponType.GREATSWORD
-                id.contains("hammer") || id.contains("martillo") -> WeaponType.HAMMER
-                id.contains("spear") || id.contains("lanza") -> WeaponType.SPEAR
-                id.contains("katana") -> WeaponType.KATANA
-                id.contains("dagger") || id.contains("daga") -> WeaponType.DUAL_BLADES
-                id.contains("bow") || id.contains("arco") -> WeaponType.BOW
-                else -> WeaponType.NONE
-            }
+            return matchString(id)
         }
 
         val name = meta.displayName.lowercase()
+        return matchString(name)
+    }
 
+    private fun matchString(input: String): WeaponType {
         return when {
-            name.contains("gran espada") -> WeaponType.GREATSWORD
-            name.contains("lanza") -> WeaponType.SPEAR
-            name.contains("martillo") -> WeaponType.HAMMER
-            name.contains("katana") -> WeaponType.KATANA
-            name.contains("dagas") -> WeaponType.DUAL_BLADES
-            name.contains("arco") -> WeaponType.BOW
+            input.contains("nodachi") -> WeaponType.NODACHI
+            input.contains("katana") -> WeaponType.KATANA
 
-            item.type.name.contains("NETHERITE_SWORD") -> WeaponType.GREATSWORD
-            item.type.name.contains("TRIDENT") -> WeaponType.SPEAR
-            item.type.name.contains("MACE") -> WeaponType.HAMMER
+            input.contains("yumi") || input.contains("arco") -> WeaponType.YUMI
+            input.contains("naginata") || input.contains("lanza") -> WeaponType.NAGINATA
+
+            input.contains("tekko") || input.contains("puño") || input.contains("garras") -> WeaponType.TEKKO
+            input.contains("kama") || input.contains("hoz") -> WeaponType.KAMA
 
             else -> WeaponType.NONE
         }

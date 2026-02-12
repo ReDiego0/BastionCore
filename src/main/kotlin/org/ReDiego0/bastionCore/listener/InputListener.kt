@@ -30,7 +30,7 @@ class InputListener(
 
         if (weaponType == WeaponType.NONE) return
 
-        if (weaponType == WeaponType.BOW) {
+        if (weaponType == WeaponType.YUMI) {
             if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
                 event.isCancelled = true
                 combatManager.handleRightClick(player, weaponType)

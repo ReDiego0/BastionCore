@@ -6,38 +6,37 @@ enum class Role(
     val description: String,
     val baseHealth: Double
 ) {
-    RECLUTA(
-        "recluta",
-        "Recluta",
-        "Personal básico sin especialización.",
+    VAGABUNDO(
+        "vagabundo",
+        "Vagabundo",
+        "Un alma errante sin propósito definido aún.",
         20.0
     ),
 
-    VANGUARDIA(
-        "vanguardia",
-        "Vanguardia",
-        "Especialista en defensa y control de masas. La muralla del equipo.",
-        26.0
+    SAMURAI(
+        "samurai",
+        "Samurái",
+        "El baluarte inquebrantable. Especialista en mitigar daño y proteger aliados.",
+        50.0
     ),
 
-    RASTREADOR(
-        "rastreador",
-        "Rastreador",
-        "Especialista en rango y trampas. Mantienen la presión a distancia.",
-        20.0
+    ORACULO(
+        "oraculo",
+        "Oráculo",
+        "El nexo espiritual. Especialista en sanación y manipulación del flujo de batalla.",
+        40.0
     ),
 
-    CENTINELA(
-        "centinela",
-        "Centinela",
-        "Especialista en daño explosivo y movilidad. Alto riesgo, alta recompensa.",
-        18.0
+    KENSAI(
+        "kensai",
+        "Kensai",
+        "Ha trascendido el uso de la armadura para enfocarse en la velocidad y la técnica perfecta.",
+        30.0
     );
 
     companion object {
-        // obtener un rol desde un String
         fun fromId(id: String): Role {
-            return entries.find { it.id.equals(id, ignoreCase = true) } ?: RECLUTA
+            return entries.find { it.id.equals(id, ignoreCase = true) } ?: VAGABUNDO
         }
     }
 }
