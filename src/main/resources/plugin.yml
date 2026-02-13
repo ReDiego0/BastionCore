@@ -32,6 +32,9 @@ commands:
   faccion:
     description: Menu de facciones
     permission: bastion.player
+  adminclan:
+    description: Menu de facciones
+    permission: bastion.player
 
 permissions:
   bastion.admin:

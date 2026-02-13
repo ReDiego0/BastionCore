@@ -33,6 +33,7 @@ class BastionCore : JavaPlugin() {
     lateinit var roleManager: RoleManager
     lateinit var factionGUI: FactionGUI
     lateinit var shopManager: ShopManager
+    lateinit var clanManager: ClanManager
 
     var economy: Economy? = null
 
@@ -58,6 +59,8 @@ class BastionCore : JavaPlugin() {
         factionGUI = FactionGUI(this)
         shopManager = ShopManager(this)
         shopManager.loadShops()
+        clanManager = ClanManager(this)
+        clanManager.loadClans()
 
 
         server.pluginManager.registerEvents(playerDataManager, this)
@@ -79,6 +82,7 @@ class BastionCore : JavaPlugin() {
         getCommand("party")?.setExecutor(org.ReDiego0.bastionCore.command.PartyCommand(this))
         getCommand("clase")?.setExecutor(org.ReDiego0.bastionCore.command.ClassCommand(this))
         getCommand("faccion")?.setExecutor(org.ReDiego0.bastionCore.command.FactionCommand(this))
+        getCommand("adminclan")?.setExecutor(org.ReDiego0.bastionCore.command.AdminClanCommand(this))
 
         StaminaTask(this).runTaskTimer(this, 20L, 5L)
         TrackingTask(this).runTaskTimer(this, 20L, 2L)

@@ -114,6 +114,22 @@ class BastionExpansion(private val plugin: BastionCore) : PlaceholderExpansion()
             return generateLivesVisual(activeMission.currentLives, activeMission.maxLives)
         }
 
+        val clan = plugin.clanManager.getClanByPlayer(player.uniqueId)
+
+        if (params.equals("clan_name", ignoreCase = true)) {
+            return clan?.displayName ?: ""
+        }
+
+        if (params.equals("clan_tag", ignoreCase = true)) {
+            return if (clan != null) "§8[${clan.displayName}§8]§r" else "Sin Clan"
+        }
+
+        if (params.equals("clan_rank", ignoreCase = true)) {
+            if (clan == null) return ""
+            val level = clan.members[player.uniqueId] ?: 1
+            return clan.getRankDisplayName(level)
+        }
+
         return null
     }
 
